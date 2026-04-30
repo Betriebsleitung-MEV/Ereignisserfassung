@@ -14,9 +14,9 @@
       "verantwortlich": "BLS"
     },
     {
-      "id": "DB C",
-      "label": "DB Cargo Schweiz",
-      "verantwortlich": "DB"
+      "id": "DB Cargo Schweiz",
+      "label": "DB",
+      "verantwortlich": "DB Cargo Schweiz"
     },
     {
       "id": "RCCH",
@@ -26,37 +26,57 @@
     {
       "id": "SBB Cargo",
       "label": "SBB C",
-      "verantwortlich": "SBB C"
-    },
-    {
-      "id": "SBB C International",
-      "label": "SBB C IN",
-      "verantwortlich": "SBB C IN"
-    },
-    {
-      "id": "GTS Rail",
-      "label": "GTSR",
-      "verantwortlich": "MEV"
-    },
-    {
-      "id": "Medway Italia",
-      "label": "MDW",
-      "verantwortlich": "MDW"
+      "verantwortlich": "SBB Cargo"
     },
     {
       "id": "SBB Personenverkehr",
       "label": "SBB P",
-      "verantwortlich": "SBB P"
+      "verantwortlich": "SBB Personenverkehr"
+    },
+    {
+      "id": "SBB Cargo International",
+      "label": "SBB C IN",
+      "verantwortlich": "SBB Cargo International"
+    },
+    {
+      "id": "Transrail",
+      "label": "TR",
+      "verantwortlich": "Transrail"
     },
     {
       "id": "RailCare",
       "label": "RLC",
-      "verantwortlich": "RLC"
+      "verantwortlich": "RailCare"
     },
     {
-      "id": "TX Logistik Schweiz",
+      "id": "SBB Infrastruktur",
+      "label": "SBB Infra",
+      "verantwortlich": "SBB Infrastruktur"
+    },
+    {
+      "id": "Oensingen-Balsthal-Bahn",
+      "label": "OeBB",
+      "verantwortlich": "Oensingen-Balsthal-Bahn"
+    },
+    {
+      "id": "Medway",
+      "label": "MDW",
+      "verantwortlich": "Medway"
+    },
+    {
+      "id": "Rail Cargo Austria",
+      "label": "RCA",
+      "verantwortlich": "Rail Cargo Austria"
+    },
+    {
+      "id": "GTS Rail",
+      "label": "GTS",
+      "verantwortlich": "MEV"
+    },
+    {
+      "id": "TX Logistik",
       "label": "TXL",
-      "verantwortlich": "TXL"
+      "verantwortlich": "TX Logistik"
     }
   ],
   "default": {
@@ -79,8 +99,19 @@
           "flags": {
             "EL": true
           },
-          "fuehrend": "KUNDE",
-          "fuehrend_overrides": {}
+          "fuehrend": "MEV",
+          "fuehrend_overrides": {
+            "RCCH": "MEV",
+            "GTS Rail": "MEV"
+          },
+          "massnahmen": {},
+          "massnahmen_global": {},
+          "massnahmen_evu": {
+            "SBB Cargo": {
+              "add": {},
+              "remove": {}
+            }
+          }
         },
         {
           "key": "b2",
@@ -91,8 +122,12 @@
           },
           "fuehrend": "KUNDE",
           "fuehrend_overrides": {
-            "RCCH": "MEV"
-          }
+            "RCCH": "MEV",
+            "GTS Rail": "MEV"
+          },
+          "massnahmen": {},
+          "massnahmen_global": {},
+          "massnahmen_evu": {}
         },
         {
           "key": "b3",
@@ -104,8 +139,12 @@
           },
           "fuehrend": "KUNDE",
           "fuehrend_overrides": {
-            "RCCH": "MEV"
-          }
+            "RCCH": "MEV",
+            "GTS Rail": "MEV"
+          },
+          "massnahmen": {},
+          "massnahmen_global": {},
+          "massnahmen_evu": {}
         }
       ]
     },
@@ -119,8 +158,11 @@
           "flags": {
             "EL": true
           },
-          "fuehrend": "KUNDE",
-          "fuehrend_overrides": {}
+          "fuehrend": "MEV",
+          "fuehrend_overrides": {},
+          "massnahmen": {},
+          "massnahmen_global": {},
+          "massnahmen_evu": {}
         },
         {
           "key": "e2",
@@ -132,6 +174,25 @@
           "fuehrend": "KUNDE",
           "fuehrend_overrides": {
             "RCCH": "MEV"
+          },
+          "massnahmen": {},
+          "massnahmen_global": {
+            "RS": true,
+            "AD3": true
+          },
+          "massnahmen_evu": {
+            "SBB Cargo": {
+              "add": {
+                "GS": true
+              },
+              "remove": {}
+            },
+            "SBB Cargo International": {
+              "add": {
+                "GS": true
+              },
+              "remove": {}
+            }
           }
         },
         {
@@ -145,6 +206,31 @@
           "fuehrend": "KUNDE",
           "fuehrend_overrides": {
             "RCCH": "MEV"
+          },
+          "massnahmen": {},
+          "massnahmen_global": {
+            "RS": true,
+            "AD3": true
+          },
+          "massnahmen_evu": {
+            "SBB Cargo": {
+              "add": {
+                "GS": true
+              },
+              "remove": {}
+            },
+            "SBB Cargo International": {
+              "add": {
+                "GS": true
+              },
+              "remove": {}
+            },
+            "SBB Personenverkehr": {
+              "add": {
+                "GS": true
+              },
+              "remove": {}
+            }
           }
         }
       ]
@@ -159,8 +245,11 @@
           "flags": {
             "EL": true
           },
-          "fuehrend": "KUNDE",
-          "fuehrend_overrides": {}
+          "fuehrend": "MEV",
+          "fuehrend_overrides": {},
+          "massnahmen": {},
+          "massnahmen_global": {},
+          "massnahmen_evu": {}
         },
         {
           "key": "l2",
@@ -172,7 +261,10 @@
           "fuehrend": "KUNDE",
           "fuehrend_overrides": {
             "RCCH": "MEV"
-          }
+          },
+          "massnahmen": {},
+          "massnahmen_global": {},
+          "massnahmen_evu": {}
         }
       ]
     },
@@ -186,8 +278,11 @@
           "flags": {
             "RB": true
           },
-          "fuehrend": "KUNDE",
-          "fuehrend_overrides": {}
+          "fuehrend": "MEV",
+          "fuehrend_overrides": {},
+          "massnahmen": {},
+          "massnahmen_global": {},
+          "massnahmen_evu": {}
         },
         {
           "key": "s2",
@@ -200,7 +295,10 @@
           "fuehrend": "KUNDE",
           "fuehrend_overrides": {
             "RCCH": "MEV"
-          }
+          },
+          "massnahmen": {},
+          "massnahmen_global": {},
+          "massnahmen_evu": {}
         }
       ]
     },
@@ -218,6 +316,33 @@
           "fuehrend": "KUNDE",
           "fuehrend_overrides": {
             "RCCH": "MEV"
+          },
+          "massnahmen": {},
+          "massnahmen_global": {
+            "WFK": true
+          },
+          "massnahmen_evu": {
+            "SBB Cargo": {
+              "add": {
+                "RS": true,
+                "AD3": true
+              },
+              "remove": {}
+            },
+            "SBB Personenverkehr": {
+              "add": {},
+              "remove": {}
+            },
+            "RCCH": {
+              "add": {
+                "WFKL": true
+              },
+              "remove": {}
+            },
+            "Medway": {
+              "add": {},
+              "remove": {}
+            }
           }
         },
         {
@@ -230,6 +355,33 @@
           "fuehrend": "KUNDE",
           "fuehrend_overrides": {
             "RCCH": "MEV"
+          },
+          "massnahmen": {},
+          "massnahmen_global": {
+            "RS": true,
+            "AD3": true
+          },
+          "massnahmen_evu": {
+            "SBB Cargo": {
+              "add": {
+                "GS": true
+              },
+              "remove": {}
+            },
+            "SBB Personenverkehr": {
+              "add": {
+                "GS": true
+              },
+              "remove": {}
+            },
+            "RCCH": {
+              "add": {},
+              "remove": {}
+            },
+            "Medway": {
+              "add": {},
+              "remove": {}
+            }
           }
         }
       ]
@@ -245,7 +397,10 @@
             "EL": true
           },
           "fuehrend": "MEV",
-          "fuehrend_overrides": {}
+          "fuehrend_overrides": {},
+          "massnahmen": {},
+          "massnahmen_global": {},
+          "massnahmen_evu": {}
         },
         {
           "key": "st2",
@@ -254,7 +409,10 @@
             "EL": true
           },
           "fuehrend": "MEV",
-          "fuehrend_overrides": {}
+          "fuehrend_overrides": {},
+          "massnahmen": {},
+          "massnahmen_global": {},
+          "massnahmen_evu": {}
         },
         {
           "key": "st3",
@@ -263,7 +421,10 @@
             "RB": true
           },
           "fuehrend": "MEV",
-          "fuehrend_overrides": {}
+          "fuehrend_overrides": {},
+          "massnahmen": {},
+          "massnahmen_global": {},
+          "massnahmen_evu": {}
         }
       ]
     },
@@ -278,7 +439,10 @@
             "EL": true
           },
           "fuehrend": "MEV",
-          "fuehrend_overrides": {}
+          "fuehrend_overrides": {},
+          "massnahmen": {},
+          "massnahmen_global": {},
+          "massnahmen_evu": {}
         },
         {
           "key": "i2",
@@ -287,7 +451,10 @@
             "EL": true
           },
           "fuehrend": "MEV",
-          "fuehrend_overrides": {}
+          "fuehrend_overrides": {},
+          "massnahmen": {},
+          "massnahmen_global": {},
+          "massnahmen_evu": {}
         },
         {
           "key": "i3",
@@ -296,7 +463,10 @@
             "EL": true
           },
           "fuehrend": "MEV",
-          "fuehrend_overrides": {}
+          "fuehrend_overrides": {},
+          "massnahmen": {},
+          "massnahmen_global": {},
+          "massnahmen_evu": {}
         }
       ]
     },
@@ -311,7 +481,10 @@
             "EL": true
           },
           "fuehrend": "MEV",
-          "fuehrend_overrides": {}
+          "fuehrend_overrides": {},
+          "massnahmen": {},
+          "massnahmen_global": {},
+          "massnahmen_evu": {}
         },
         {
           "key": "g2",
@@ -323,6 +496,16 @@
           "fuehrend": "KUNDE",
           "fuehrend_overrides": {
             "RCCH": "MEV"
+          },
+          "massnahmen": {},
+          "massnahmen_global": {},
+          "massnahmen_evu": {
+            "RCCH": {
+              "add": {
+                "GGB": true
+              },
+              "remove": {}
+            }
           }
         },
         {
@@ -336,6 +519,16 @@
           "fuehrend": "KUNDE",
           "fuehrend_overrides": {
             "RCCH": "MEV"
+          },
+          "massnahmen": {},
+          "massnahmen_global": {},
+          "massnahmen_evu": {
+            "RCCH": {
+              "add": {
+                "GGB": true
+              },
+              "remove": {}
+            }
           }
         }
       ]
@@ -349,7 +542,10 @@
           "text": "Dritte ohne Beteiligung MEV",
           "flags": {},
           "fuehrend": "MEV",
-          "fuehrend_overrides": {}
+          "fuehrend_overrides": {},
+          "massnahmen": {},
+          "massnahmen_global": {},
+          "massnahmen_evu": {}
         },
         {
           "key": "p2",
@@ -358,7 +554,10 @@
             "EL": true
           },
           "fuehrend": "MEV",
-          "fuehrend_overrides": {}
+          "fuehrend_overrides": {},
+          "massnahmen": {},
+          "massnahmen_global": {},
+          "massnahmen_evu": {}
         },
         {
           "key": "p3",
@@ -370,6 +569,24 @@
           "fuehrend": "KUNDE",
           "fuehrend_overrides": {
             "RCCH": "MEV"
+          },
+          "massnahmen": {},
+          "massnahmen_global": {
+            "AD3": true
+          },
+          "massnahmen_evu": {
+            "SBB Cargo": {
+              "add": {},
+              "remove": {}
+            },
+            "SBB Cargo International": {
+              "add": {},
+              "remove": {}
+            },
+            "SBB Personenverkehr": {
+              "add": {},
+              "remove": {}
+            }
           }
         },
         {
@@ -383,7 +600,10 @@
           "fuehrend": "KUNDE",
           "fuehrend_overrides": {
             "RCCH": "MEV"
-          }
+          },
+          "massnahmen": {},
+          "massnahmen_global": {},
+          "massnahmen_evu": {}
         },
         {
           "key": "p5",
@@ -396,7 +616,10 @@
           "fuehrend": "KUNDE",
           "fuehrend_overrides": {
             "RCCH": "MEV"
-          }
+          },
+          "massnahmen": {},
+          "massnahmen_global": {},
+          "massnahmen_evu": {}
         }
       ]
     }
@@ -428,6 +651,56 @@
         "label": "Erweiterter Kreis",
         "beschreibung": "Erweiterter Kreis informieren",
         "icon": ""
+      },
+      "RS": {
+        "label": "Railopt-Sperre",
+        "beschreibung": "Mitarbeiter im Railopt für Kunde sperren",
+        "icon": ""
+      },
+      "AD3": {
+        "label": "Arbeitsentzug 3 Tage",
+        "beschreibung": "Mitarbeiter für 3 Tage vom Dienst befreien",
+        "icon": ""
+      },
+      "ELP": {
+        "label": "EL-Protokoll starten",
+        "beschreibung": "Einsatzleitung: Protokoll/Ereignisführung starten",
+        "icon": ""
+      },
+      "ELK": {
+        "label": "EL-Kommunikation",
+        "beschreibung": "Einsatzleitung: Kommunikation/Koordination sicherstellen",
+        "icon": ""
+      },
+      "ELL": {
+        "label": "EL-Lagebild führen",
+        "beschreibung": "Einsatzleitung: Lagebild erstellen/aktualisieren",
+        "icon": ""
+      },
+      "GS": {
+        "label": "Gruppensperre",
+        "beschreibung": "Alle SBB EVU in Railopt sperren",
+        "icon": ""
+      },
+      "WFK": {
+        "label": "Weiterfahrt",
+        "beschreibung": "Weiterfahrt möglich nach Rücksprache Kunde",
+        "icon": ""
+      },
+      "WF": {
+        "label": "Weiterfahrt",
+        "beschreibung": "Weiterfahrt nach Rücksprache mit Rufbereitschaft",
+        "icon": ""
+      },
+      "WFKL": {
+        "label": "Weiterfahrt Ermessen",
+        "beschreibung": "nach Ermessen EL",
+        "icon": ""
+      },
+      "GGB": {
+        "label": "Gefahrgutunfall",
+        "beschreibung": "Gefahrgutbeauftragten Informieren",
+        "icon": ""
       }
     },
     "legacy_mapping": {
@@ -439,6 +712,18 @@
     "fuehrend_bedeutung": {
       "MEV": "MEV ist führend",
       "KUNDE": "ausgewähltes EVU ist führend"
-    }
+    },
+    "massnahmen_keys": [
+      "RS",
+      "AD3",
+      "ELP",
+      "ELK",
+      "ELL",
+      "GS",
+      "WFK",
+      "WF",
+      "WFKL",
+      "GGB"
+    ]
   }
 }
