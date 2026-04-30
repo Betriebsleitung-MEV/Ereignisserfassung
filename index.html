@@ -70,16 +70,29 @@
     .sufu-small{font-size:12px;color:#666}
 
     /* Map */
-    .map-wrap{background:#f3f3f3;border:2px dashed #bbb;border-radius:10px;min-height:340px;position:relative;overflow:hidden}
+    .map-wrap{background:#f3f3f3;border:2px dashed #bbb;border-radius:10px;min-height:340px;position:relative;overflow:hidden;aspect-ratio: 1 / 1;}
     .map-wrap.loading::before{content:"Karte wird geladen …";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:900;color:#666}
     .map-toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
     .map-toolbar .hint{margin:0}
     .svg-station-selected{stroke:#2e7d32 !important;stroke-width:2.5 !important;fill:#dff5e1 !important}
+    .map-ring{
+    position:absolute;
+    width:22px;height:22px;
+    border-radius:999px;
+    border:3px solid #2e7d32;
+    background:transparent;
+    pointer-events:none;
+    display:none;
+    z-index:10;
+    box-sizing:border-box;
+   }
+
 
     /* Fotos */
     
    /* Fotos: immer 2 Spalten, 2 Zeilen (JS limitiert auf 4) */
    .photos{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+   .photos.narrow{max-width:780px;margin-right:auto;}
    
    /* Kacheln doppelt so gross */
    .photo-thumb{height:260px;border:2px solid #000;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fff}
@@ -363,7 +376,6 @@
     <textarea id="massnahmen_text" rows="4" placeholder="Bemerkungen zum Vorgehen (optional)"></textarea>
     <div class="hint">Freitext</div>
   </div>
-  </div>
 
   <div class="field narrow" style="margin-top:12px;">
     <div style="font-weight:900;margin-bottom:6px;">Bemerkungen zur Entscheidung</div>
@@ -380,7 +392,6 @@
     <div class="hint">Empfohlen: max. 4 Fotos / total max. 10 MB</div>
   </div>
   <div class="photos narrow" id="photoPreview" style="margin-top:12px;"></div>
-  .photos.narrow{max-width:780px;margin-right:auto;}
 
 </div>
 
@@ -918,6 +929,14 @@
     const svgText = await res.text();
     mapBox.innerHTML = svgText;
     mapSvg = mapBox.querySelector('svg');
+    // Ring overlay sicherstellen
+let ring = mapBox.querySelector('#mapRing');
+if(!ring){
+  ring = document.createElement('div');
+  ring.id = 'mapRing';
+  ring.className = 'map-ring';
+  mapBox.appendChild(ring);
+ }
     if(!mapSvg) throw new Error('map.svg enthält kein <svg>');
     mapSvg.style.width = '100%';
     mapSvg.style.height = '100%';
@@ -964,7 +983,40 @@
     const y2 = Math.max(p1.y + p1.height, p2.y + p2.height);
     svg.setAttribute('viewBox', `${x1-padding} ${y1-padding} ${(x2-x1)+padding*2} ${(y2-y1)+padding*2}`);
   }
-  function resetMapView(){
+  function resetMapView()hideRing();
+  function getViewBoxObj(svg){
+  const vb = (svg.getAttribute('viewBox')||'').trim();
+  if(!vb) return null;
+  const p = vb.split(/[\\s,]+/).map(Number);
+  if(p.length!==4 || p.some(n=>!Number.isFinite(n))) return null;
+  return {x:p[0], y:p[1], w:p[2], h:p[3]};
+}
+
+function svgToBox(svg, x, y){
+  const vb = getViewBoxObj(svg);
+  if(!vb) return null;
+  const W = mapBox.clientWidth || 380;
+  const H = mapBox.clientHeight || 380;
+  const s = Math.min(W / vb.w, H / vb.h);           // meet
+  const ox = (W - vb.w * s) / 2;
+  const oy = (H - vb.h * s) / 2;
+  return {x: ox + (x - vb.x) * s, y: oy + (y - vb.y) * s};
+}
+
+function showRingAt(svg, x, y){
+  const ring = mapBox.querySelector('#mapRing');
+  const pt = svgToBox(svg, x, y);
+  if(!ring || !pt) return;
+  const r = 11; // halb von 22px
+  ring.style.left = (pt.x - r) + 'px';
+  ring.style.top  = (pt.y - r) + 'px';
+  ring.style.display = 'block';
+}
+
+function hideRing(){
+  const ring = mapBox.querySelector('#mapRing');
+  if(ring) ring.style.display = 'none';
+}{
     if(mapSvg && mapDefaultViewBox) mapSvg.setAttribute('viewBox', mapDefaultViewBox);
     if(mapSvg) setHighlight(mapSvg, null);
   }
