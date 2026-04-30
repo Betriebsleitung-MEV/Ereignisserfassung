@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meldeformular - VorgD-006 Meldeplan der MEV Schweiz AG</title>
+  <title>Meldeformular</title>
   <style>
     /* ===== Basis (Test12-Style, desktop-first) ===== */
     body{font-family:Arial,sans-serif;background:#f5f5f5;padding:24px}
@@ -29,6 +29,7 @@
     input, textarea, select{width:100%;padding:10px;border:1px solid #bbb;border-radius:6px;box-sizing:border-box;font-size:14px}
     textarea{resize:vertical}
     .field{background:#f9f9f9;padding:12px;border-radius:8px;max-width:none}
+    .field.narrow{max-width:780px;margin-right:auto;}
     .hint{font-size:12px;color:#666;margin-top:6px}
 
     /* Pillars */
@@ -77,15 +78,15 @@
 
     /* Fotos */
     
-   ```css
    /* Fotos: immer 2 Spalten, 2 Zeilen (JS limitiert auf 4) */
    .photos{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-
+   
    /* Kacheln doppelt so gross */
    .photo-thumb{height:260px;border:2px solid #000;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fff}
 
     .photo-thumb img{max-width:100%;max-height:100%;display:block}
     .badge{display:inline-block;padding:4px 10px;border-radius:999px;background:#eee;border:1px solid #ccc;font-weight:900;font-size:12px;margin-left:8px}
+    #autoBadge{display:none;}
 
     /* Top bar */
     .topbar{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
@@ -95,7 +96,7 @@
 <body>
 <div class="form">
   <div class="topbar">
-    <h1>Meldeformular</h1>
+    <h1>Meldeformular  - VorgD-006 Meldeplan der MEV Schweiz AG</h1>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <button type="button" class="btn-primary" id="btnSubmit">Absenden</button>
       <button type="button" class="btn-secondary" id="btnReset">Formular zurücksetzen</button>
@@ -213,7 +214,7 @@
   </div>
 
   <div class="subhead">Bemerkungen zur Alarmierung</div>
-  <div class="field">
+  <div class="field narrow">
     <textarea id="alarm_bemerkungen" rows="4" placeholder="Bemerkungen (optional)"></textarea>
     <div class="hint">Freitext</div>
   </div>
@@ -277,7 +278,7 @@
         <input type="text" id="anschlussText" placeholder="Anschluss / Gleis">
       </div>
 
-      <div class="field" style="margin-top:12px;">
+      <div class="field narrow" style="margin-top:12px;">
         <div style="font-weight:800;margin-bottom:8px;">Bemerkungen</div>
         <textarea id="ereignis_bemerkungen" rows="3" placeholder="Bemerkungen (optional)"></textarea>
       </div>
@@ -315,7 +316,7 @@
   </div>
 
   <div class="subhead">Bewertung <span class="badge" id="autoBadge">Auto</span></div>
-  <div class="row-2">
+  <div class="row-2 is-hidden">
     <div class="field">
       <label style="font-weight:900;display:flex;gap:10px;align-items:center;">
         <input type="checkbox" id="override_toggle"> Manuell überschreiben
@@ -357,14 +358,14 @@
     </div>
   </div>
 
-  <div class="field">
+  <div class="field narrow">
     <div style="font-weight:900;margin-bottom:6px;">Vorgehen / Auftrag</div>
     <textarea id="massnahmen_text" rows="4" placeholder="Bemerkungen zum Vorgehen (optional)"></textarea>
     <div class="hint">Freitext</div>
   </div>
   </div>
 
-  <div class="field" style="margin-top:12px;">
+  <div class="field narrow" style="margin-top:12px;">
     <div style="font-weight:900;margin-bottom:6px;">Bemerkungen zur Entscheidung</div>
     <textarea id="entscheid_bemerkungen" rows="3" placeholder="Bemerkungen (optional)"></textarea>
   </div>
@@ -373,12 +374,13 @@
   <!-- 4) FOTOS (optional)   -->
   <!-- ===================== -->
   <div class="section-title"><div>Fotos (optional)</div></div>
-  <div class="field">
+  <div class="field narrow">
     <div style="font-weight:900;margin-bottom:6px;">Fotos auswählen</div>
     <input id="photoInput" type="file" accept="image/*" multiple>
     <div class="hint">Empfohlen: max. 4 Fotos / total max. 10 MB</div>
   </div>
-  <div class="photos" id="photoPreview" style="margin-top:12px;"></div>
+  <div class="photos narrow" id="photoPreview" style="margin-top:12px;"></div>
+  .photos.narrow{max-width:780px;margin-right:auto;}
 
 </div>
 
