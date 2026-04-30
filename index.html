@@ -983,12 +983,17 @@ if(!ring){
     const y2 = Math.max(p1.y + p1.height, p2.y + p2.height);
     svg.setAttribute('viewBox', `${x1-padding} ${y1-padding} ${(x2-x1)+padding*2} ${(y2-y1)+padding*2}`);
   }
-  function resetMapView()hideRing();
-  function getViewBoxObj(svg){
-  const vb = (svg.getAttribute('viewBox')||'').trim();
+function resetMapView(){
+  if(mapSvg && mapDefaultViewBox) mapSvg.setAttribute('viewBox', mapDefaultViewBox);
+  if(mapSvg) setHighlight(mapSvg, null);
+  hideRing();
+}
+
+function getViewBoxObj(svg){
+  const vb = (svg.getAttribute('viewBox') || '').trim();
   if(!vb) return null;
-  const p = vb.split(/[\\s,]+/).map(Number);
-  if(p.length!==4 || p.some(n=>!Number.isFinite(n))) return null;
+  const p = vb.split(/[\s,]+/).map(Number);
+  if(p.length !== 4 || p.some(n => !Number.isFinite(n))) return null;
   return {x:p[0], y:p[1], w:p[2], h:p[3]};
 }
 
@@ -997,10 +1002,10 @@ function svgToBox(svg, x, y){
   if(!vb) return null;
   const W = mapBox.clientWidth || 380;
   const H = mapBox.clientHeight || 380;
-  const s = Math.min(W / vb.w, H / vb.h);           // meet
+  const s = Math.min(W / vb.w, H / vb.h); // meet
   const ox = (W - vb.w * s) / 2;
   const oy = (H - vb.h * s) / 2;
-  return {x: ox + (x - vb.x) * s, y: oy + (y - vb.y) * s};
+  return { x: ox + (x - vb.x) * s, y: oy + (y - vb.y) * s };
 }
 
 function showRingAt(svg, x, y){
@@ -1016,10 +1021,7 @@ function showRingAt(svg, x, y){
 function hideRing(){
   const ring = mapBox.querySelector('#mapRing');
   if(ring) ring.style.display = 'none';
-}{
-    if(mapSvg && mapDefaultViewBox) mapSvg.setAttribute('viewBox', mapDefaultViewBox);
-    if(mapSvg) setHighlight(mapSvg, null);
-  }
+}
   document.getElementById('btnMapReset').addEventListener('click', resetMapView);
 
   function openStationPicker(title, cb){
@@ -1121,10 +1123,23 @@ function hideRing(){
   // Bahnhof
   document.getElementById('btnPickBahnhof').onclick = ()=>{
     openStationPicker('Station (Bahnhof) wählen', (s)=>{
-      ortSelection.bahnhof = s;
-      setViewText('viewBahnhof', s);
-      if(mapSvg){
-        zoomToPosition(mapSvg, s.position, 70);
+     if(mapSvg){
+  const el = findStationElement(mapSvg, s);
+  setHighlight(mapSvg, el);
+
+  if(el){
+    try{
+      const bb = el.getBBox();
+      zoomToPosition(mapSvg, {x:bb.x, y:bb.y, width:bb.width, height:bb.height}, 180);
+      showRingAt(mapSvg, bb.x + bb.width/2, bb.y + bb.height/2);
+    }catch(e){
+      zoomToPosition(mapSvg, s.position, 70);
+      hideRing();
+    }
+  } else {
+    hideRing();
+  }
+}
         setHighlight(mapSvg, findStationElement(mapSvg, s));
       }
     });
@@ -1158,9 +1173,22 @@ function hideRing(){
       ortSelection.anschluss = s;
       setViewText('viewAnschluss', s);
       if(mapSvg){
-        zoomToPosition(mapSvg, s.position, 70);
-        setHighlight(mapSvg, findStationElement(mapSvg, s));
-      }
+  const el = findStationElement(mapSvg, s);
+  setHighlight(mapSvg, el);
+
+  if(el){
+    try{
+      const bb = el.getBBox();
+      zoomToPosition(mapSvg, {x:bb.x, y:bb.y, width:bb.width, height:bb.height}, 180);
+      showRingAt(mapSvg, bb.x + bb.width/2, bb.y + bb.height/2);
+    }catch(e){
+      zoomToPosition(mapSvg, s.position, 70);
+      hideRing();
+    }
+  } else {
+    hideRing();
+  }
+}
     });
   };
 
