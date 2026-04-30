@@ -163,8 +163,8 @@
 
   <div id="erfasserCard" class="card is-inactive">
     <div style="font-weight:900;margin-bottom:8px;">Erfasser auswählen</div>
-    <<button type="button" class="btn-secondary" id="btnPickErfasser">Mitarbeiter suchen (SUFU)</button>
-<select id="erfasserSelect" class="is-hidden"><option value="">Bitte wählen</option></select>>
+    <button type="button" class="btn-secondary" id="btnPickErfasser">Mitarbeiter suchen (SUFU)</button>
+<select id="erfasserSelect" class="is-hidden"><option value="">Bitte wählen</option></select>
     <div class="pillars" style="margin-top:12px;">
       <div class="pillar locked" style="cursor:default;"><div class="p-label">Typ</div><div class="p-value" id="erfasser_typ">—</div></div>
       <div class="pillar locked is-hidden" id="erfasser_vor_P" style="cursor:default;"><div class="p-label">Vorname</div><div class="p-value" id="erfasser_vor">—</div></div>
@@ -539,7 +539,8 @@
 
   // Erfasser SUFU
   document.getElementById('btnPickErfasser')?.addEventListener('click', ()=>{
-    openStaffPicker('Erfasser wählen', (p)=> setSelectToStaff(erfasserSelect, p));
+  const sel = document.getElementById('erfasserSelect');
+  openStaffPicker('Erfasser wählen', (p)=> setSelectToStaff(sel, p));
   });
 
   // Involvierte Intern SUFU (pro Person)
@@ -553,7 +554,6 @@
 
     openStaffPicker('Mitarbeiter wählen', (p)=> setSelectToStaff(sel, p));
   });
-``
 
   const mTyp = document.getElementById('melder_typ');
   const mVorP = document.getElementById('melder_vor_P');
@@ -890,7 +890,6 @@
       });
     }
   });
-``
 
   setLimitUI();
 
