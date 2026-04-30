@@ -1071,16 +1071,35 @@ function renderVorgehen(variant){
   }
 
   function applyAutoDecisions(){
-    const evKey = (evKeyEl.value||'').trim();
-    const varKey = (varKeyEl.value||'').trim();
-    const found = findVariant(evKey, varKey);
-    if(!found){
-      sourceView.textContent = 'Keine gültige Kombination Ereignisart/Variante.';
-      ['EL','RB','FS','EK'].forEach(k=> setFlag(k,false));
-      fuehrendView.textContent = '—';
-      fuehrendHint.textContent = 'Wähle Ereignisart und Variante, dann wird Führend gesetzt.';
-      return;
-    }
+  const evKey = (evKeyEl.value||'').trim();
+  const varKey = (varKeyEl.value||'').trim();
+  const found = findVariant(evKey, varKey);
+
+  if(!found){
+    // NEU: Vorgehen leeren, damit im UI nichts „hängen bleibt“
+    renderVorgehen(null);
+
+    sourceView.textContent = 'Keine gültige Kombination Ereignisart/Variante.';
+    ['EL','RB','FS','EK'].forEach(k=> setFlag(k,false));
+    fuehrendView.textContent = '—';
+    fuehrendHint.textContent = 'Wähle Ereignisart und Variante, dann wird Führend gesetzt.';
+    return;
+  }
+
+  const v = found.variant;
+  const flags = v.flags || {};
+  ['EL','RB','FS','EK'].forEach(k=> setFlag(k, !!flags[k]));
+
+  sourceView.textContent = `Entscheidungsbaum: ${found.event.etype} (${found.event.key}) → ${v.text} (${v.key})`;
+
+  const lead = computeFuehrend(v);
+  fuehrendView.textContent = lead.text;
+  fuehrendHint.textContent = lead.hint;
+
+  // NEU: Vorgehen anzeigen (massnahmen_global + massnahmen_evu)
+  renderVorgehen(v);
+}
+
 
     const v = found.variant;
     const flags = v.flags || {};
@@ -1129,6 +1148,7 @@ function renderVorgehen(variant){
 
     if(!selectedEvent){
       evKeyEl.value = '';
+      renderVorgehen(null);
       if(!overrideToggle.checked) applyAutoDecisions();
       return;
     }
@@ -1136,14 +1156,20 @@ function renderVorgehen(variant){
     evKeyEl.value = selectedEvent.key;
     renderVarianten(selectedEvent.varianten);
     varSection.classList.remove('is-hidden');
+    renderVorgehen(null);
     if(!overrideToggle.checked) applyAutoDecisions();
   }
 
   function selectVariante(varKey){
-    [...varWrap.querySelectorAll('.pillar')].forEach(p=> p.classList.toggle('active', p.getAttribute('data-varkey') === varKey));
-    varKeyEl.value = varKey;
-    if(!overrideToggle.checked) applyAutoDecisions();
-  }
+  [...varWrap.querySelectorAll('.pillar')].forEach(p=> p.classList.toggle('active', p.getAttribute('data-varkey') === varKey));
+  varKeyEl.value = varKey;
+
+  // NEU: Vorgehen anzeigen – unabhängig vom Override
+  const found = findVariant((evKeyEl.value||'').trim(), (varKeyEl.value||'').trim());
+  renderVorgehen(found ? found.variant : null);
+
+  if(!overrideToggle.checked) applyAutoDecisions();
+}
 
   overrideToggle.addEventListener('change', ()=>{
     setManualMode(overrideToggle.checked);
