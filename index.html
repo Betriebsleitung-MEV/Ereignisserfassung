@@ -1,66 +1,235 @@
 <!DOCTYPE html>
-<html lang="de;background:#f5f5f5;padding:24px}<html lang="de">
-  .form{max-width:1250px;margin:auto;background:#fff;padding:28px;border-radius:6px}
-  .section-title{background:#e53935;color:#fff;font-weight:800;text-align:center;font-size:20px;margin-top:8px}
-  .section-title div{padding:12px}
-  .subhead{margin:22px 0 10px;font-weight:800}
-  .pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:12px 0}
-  .pillar{padding:16px;border-radius:10px;text-align:center;font-weight:800;background:#e0e0e0;cursor:pointer;user-select:none}
-  .pillar.active{background:#dff5e1;border:2px solid #6bc28a}
-  .pillar.locked{cursor:default;opacity:.95}
-  .pillar.small{padding:12px;font-weight:900}
-  .p-label{font-size:12px;font-weight:800;opacity:.75;margin-bottom:6px}
-  .p-value{font-size:14px;font-weight:900}
-  .field{background:#f9f9f9;padding:12px;border-radius:8px;max-width:none}
-  input, textarea, select{width:100%;padding:10px;border:1px solid #bbb;border-radius:6px;box-sizing:border-box;font-size:14px;}
-  textarea{resize:vertical}
-  .hint{font-size:12px;color:#666;margin-top:6px}
-  .map-placeholder{height:320px;background:#ececec;border:2px dashed #bbb;border-radius:10px;display:flex;align-items:center;justify-content:center;margin:12px 0;font-weight:800;color:#666;}
-  .photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-top:10px}
-  .photo-item{border:1px solid #ccd1d6;border-radius:10px;background:#fff;padding:8px;position:relative;}
-  .photo-item img{width:100%;height:110px;object-fit:cover;border-radius:8px;display:block}
-  .photo-name{font-size:11px;color:#555;margin-top:6px;word-break:break-all}
-  .photo-remove{position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:999px;border:1px solid #ccc;background:#fff;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-  .row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0;}
-  .row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:12px 0;}
-  @media (max-width: 920px){.row-2,.row-3{grid-template-columns:1fr;}}
-  .card{border-radius:10px;padding:12px}
-  .card.is-inactive{background:#f0f0f0;border:2px solid #cfcfcf}
-  .card.is-active{background:#dff5e1;border:2px solid #6bc28a}
-  .sysbox{padding:12px;border-radius:10px;background:#eef2ff;border:2px dashed #4d73ff;font-weight:900;text-align:center;}
-  .is-hidden{display:none}
-  .badge{display:inline-block;padding:4px 10px;border-radius:999px;background:#eee;border:1px solid #ccc;font-weight:900;font-size:12px;margin-left:8px}
-  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:9999}
-  .overlay-box{background:#fff;padding:16px;border-radius:10px;min-width:440px;max-width:740px;width:70vw}
-  .btn-secondary{width:100%;padding:10px;margin-top:8px;background:#eee;border:1px solid #ccc;border-radius:6px;font-weight:800;cursor:pointer}
-  .sufu-input{width:100%;padding:10px;margin-bottom:8px;border:1px solid #bbb;border-radius:6px}
-  .sufu-list{max-height:340px;overflow:auto;border:1px solid #ddd;border-radius:6px}
-  .sufu-item{padding:10px;cursor:pointer;border-bottom:1px solid #eee}
-  .sufu-item:hover{background:#eef2ff}
-  .sufu-small{font-size:12px;color:#666}
-</style>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meldeformular – GitHub (Test12-Style)</title>
+  <style>
+    /* ===== Basis (Test12-Style, desktop-first) ===== */
+    body{font-family:Arial,sans-serif;background:#f5f5f5;padding:24px}
+    .form{max-width:1250px;margin:auto;background:#fff;padding:28px;border-radius:6px}
+    .section-title{background:#e53935;color:#fff;font-weight:800;text-align:center;font-size:20px;margin-top:18px}
+    .section-title div{padding:12px}
+    .subhead{margin:22px 0 10px;font-weight:800}
+
+    /* Layout helpers */
+    .row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0}
+    .row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:12px 0}
+    .row-map{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;margin:12px 0}
+    @media (max-width: 1100px){
+      .row-map{grid-template-columns:1fr;}
+      .row-2,.row-3{grid-template-columns:1fr;}
+    }
+
+    /* Buttons / Fields */
+    button{cursor:pointer}
+    .btn-secondary{width:auto;padding:10px 12px;background:#eee;border:1px solid #ccc;border-radius:6px;font-weight:800}
+    .btn-primary{width:auto;padding:10px 14px;background:#2e7d32;color:#fff;border:1px solid #2e7d32;border-radius:6px;font-weight:900}
+
+    input, textarea, select{width:100%;padding:10px;border:1px solid #bbb;border-radius:6px;box-sizing:border-box;font-size:14px}
+    textarea{resize:vertical}
+    .field{background:#f9f9f9;padding:12px;border-radius:8px;max-width:none}
+    .hint{font-size:12px;color:#666;margin-top:6px}
+
+    /* Pillars */
+    .pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:12px 0}
+    .pillar{padding:16px;border-radius:10px;text-align:center;font-weight:800;background:#e0e0e0;cursor:pointer;user-select:none}
+    .pillar.active{background:#dff5e1;border:2px solid #6bc28a}
+    .pillar.locked{cursor:default;opacity:.95}
+    .pillar.small{padding:12px;font-weight:900}
+    .p-label{font-size:12px;font-weight:800;opacity:.75;margin-bottom:6px}
+    .p-value{font-size:14px;font-weight:900}
+
+    /* Cards (grau/grün) */
+    .card{border-radius:10px;padding:12px}
+    .card.is-inactive{background:#f0f0f0;border:2px solid #cfcfcf}
+    .card.is-active{background:#dff5e1;border:2px solid #6bc28a}
+
+    /* System box */
+    .sysbox{padding:12px;border-radius:10px;background:#eef2ff;border:2px dashed #4d73ff;font-weight:900;text-align:center}
+
+    /* hide */
+    .is-hidden{display:none}
+
+    /* Involvierte */
+    .inv-role-block.is-hidden{display:none}
+    .inv-list{display:flex;flex-direction:column;gap:12px;margin-top:10px}
+    .inv-person{border:1px dashed #aaa;border-radius:10px;padding:12px;background:#fafafa}
+    .inv-person-header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+    .inv-badge{font-weight:900;padding:6px 10px;border-radius:999px;background:#e0e0e0}
+    .inv-actions{display:flex;gap:8px}
+
+    /* SUFU Overlay */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:9999}
+    .overlay-box{background:#fff;padding:16px;border-radius:10px;min-width:520px;max-width:860px;width:72vw}
+    .sufu-input{width:100%;padding:10px;margin-bottom:8px;border:1px solid #bbb;border-radius:6px}
+    .sufu-list{max-height:420px;overflow:auto;border:1px solid #ddd;border-radius:6px}
+    .sufu-item{padding:10px;cursor:pointer;border-bottom:1px solid #eee}
+    .sufu-item:hover{background:#eef2ff}
+    .sufu-small{font-size:12px;color:#666}
+
+    /* Map */
+    .map-wrap{background:#f3f3f3;border:2px dashed #bbb;border-radius:10px;min-height:340px;position:relative;overflow:hidden}
+    .map-wrap.loading::before{content:"Karte wird geladen …";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:900;color:#666}
+    .map-toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+    .map-toolbar .hint{margin:0}
+    .svg-station-selected{stroke:#2e7d32 !important;stroke-width:2.5 !important;fill:#dff5e1 !important}
+
+    /* Fotos */
+    .photos{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    @media (max-width: 1100px){.photos{grid-template-columns:repeat(2,1fr);} }
+    .photo-thumb{height:130px;border:2px solid #000;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fff}
+    .photo-thumb img{max-width:100%;max-height:100%;display:block}
+    .badge{display:inline-block;padding:4px 10px;border-radius:999px;background:#eee;border:1px solid #ccc;font-weight:900;font-size:12px;margin-left:8px}
+
+    /* Top bar */
+    .topbar{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+    .topbar h1{font-size:18px;margin:0}
+  </style>
 </head>
 <body>
 <div class="form">
+  <div class="topbar">
+    <h1>Meldeformular (GitHub)</h1>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button type="button" class="btn-primary" id="btnExport">JSON exportieren</button>
+      <button type="button" class="btn-secondary" id="btnReset">Formular zurücksetzen</button>
+    </div>
+  </div>
 
-  <!-- Abschnitt: Alarmierung -->
+  <!-- ===================== -->
+  <!-- 1) ALARMIERUNG        -->
+  <!-- ===================== -->
   <div class="section-title"><div>Alarmierung</div></div>
-  <!-- Hier kannst du den Alarmierungsblock aus deiner Alarmierung Bsp.html einfügen -->
 
-  <!-- Abschnitt: Ereignisdaten -->
+  <div class="subhead">Meldung Datum / Meldung Uhrzeit</div>
+  <div class="row-2">
+    <div class="field">
+      <div style="font-weight:900;margin-bottom:6px;">Meldung Datum *</div>
+      <input id="meldung_datum" type="date" required>
+      <div class="hint">Automatisch „heute“, manuell änderbar</div>
+    </div>
+    <div class="field">
+      <div style="font-weight:900;margin-bottom:6px;">Meldung Uhrzeit *</div>
+      <input id="meldung_uhrzeit" type="time" required>
+      <div class="hint">Automatisch „jetzt“, manuell änderbar</div>
+    </div>
+  </div>
+
+  <div class="subhead">Melder</div>
+  <div class="row-2">
+    <div id="melderInternCard" class="card is-inactive">
+      <div style="font-weight:900;margin-bottom:8px;">Melder intern</div>
+      <select id="melderInternSelect"><option value="">Bitte wählen</option></select>
+      <div class="pillars" style="margin-top:12px;">
+        <div class="pillar locked" style="cursor:default;"><div class="p-label">Typ</div><div class="p-value" id="melder_typ">—</div></div>
+        <div class="pillar locked is-hidden" id="melder_vor_P" style="cursor:default;"><div class="p-label">Vorname</div><div class="p-value" id="melder_vor">—</div></div>
+        <div class="pillar locked is-hidden" id="melder_nach_P" style="cursor:default;"><div class="p-label">Nachname</div><div class="p-value" id="melder_nach">—</div></div>
+        <div class="pillar locked is-hidden" id="melder_mail_P" style="cursor:default;"><div class="p-label">Mail</div><div class="p-value" id="melder_mail">—</div></div>
+        <div class="pillar locked is-hidden" id="melder_tel_P" style="cursor:default;"><div class="p-label">Telefon</div><div class="p-value" id="melder_tel">—</div></div>
+      </div>
+      <div class="hint">Quelle: assets/mitarbeiter.json</div>
+    </div>
+
+    <div id="melderExternCard" class="card is-inactive">
+      <div style="font-weight:900;margin-bottom:8px;">Melder extern</div>
+      <input id="melderExternFirma" type="text" placeholder="Unternehmen (optional)">
+      <div class="row-2" style="margin-top:10px;">
+        <input id="melderExternVor" type="text" placeholder="Vorname (optional)">
+        <input id="melderExternNach" type="text" placeholder="Nachname (optional)">
+      </div>
+      <div class="row-2" style="margin-top:10px;">
+        <input id="melderExternMail" type="email" placeholder="Mail (optional)">
+        <input id="melderExternTel" type="tel" placeholder="Telefon (optional)">
+      </div>
+      <div class="hint">Manuelle Eingabe (nur erfassen, was vorhanden ist)</div>
+    </div>
+  </div>
+
+  <div class="subhead">Erfasser</div>
+  <div class="row-2">
+    <div class="field">
+      <div style="font-weight:900;margin-bottom:6px;">Erfasser Datum</div>
+      <div class="sysbox" id="erfasser_sys_datum">—</div>
+      <div class="hint">Systemdatum (unveränderbar)</div>
+    </div>
+    <div class="field">
+      <div style="font-weight:900;margin-bottom:6px;">Erfasser Uhrzeit</div>
+      <div class="sysbox" id="erfasser_sys_uhrzeit">—</div>
+      <div class="hint">Systemuhrzeit (unveränderbar)</div>
+    </div>
+  </div>
+
+  <div id="erfasserCard" class="card is-inactive">
+    <div style="font-weight:900;margin-bottom:8px;">Erfasser auswählen</div>
+    <select id="erfasserSelect"><option value="">Bitte wählen</option></select>
+    <div class="pillars" style="margin-top:12px;">
+      <div class="pillar locked" style="cursor:default;"><div class="p-label">Typ</div><div class="p-value" id="erfasser_typ">—</div></div>
+      <div class="pillar locked is-hidden" id="erfasser_vor_P" style="cursor:default;"><div class="p-label">Vorname</div><div class="p-value" id="erfasser_vor">—</div></div>
+      <div class="pillar locked is-hidden" id="erfasser_nach_P" style="cursor:default;"><div class="p-label">Nachname</div><div class="p-value" id="erfasser_nach">—</div></div>
+      <div class="pillar locked is-hidden" id="erfasser_mail_P" style="cursor:default;"><div class="p-label">Mail</div><div class="p-value" id="erfasser_mail">—</div></div>
+      <div class="pillar locked is-hidden" id="erfasser_tel_P" style="cursor:default;"><div class="p-label">Telefon</div><div class="p-value" id="erfasser_tel">—</div></div>
+    </div>
+    <div class="hint">Quelle: assets/mitarbeiter.json</div>
+  </div>
+
+  <div class="subhead">Involvierte Mitarbeitende</div>
+  <div class="pillars" id="invRoles" style="grid-template-columns:repeat(4,1fr)">
+    <div class="pillar" data-role="lokfuehrer">Lokführer</div>
+    <div class="pillar" data-role="rangierer">Rangierer</div>
+    <div class="pillar" data-role="wagenmeister">Wagenmeister</div>
+    <div class="pillar" data-role="andere">Andere</div>
+  </div>
+  <div class="hint" id="invHint">Maximal 3 involvierte Personen erfassen (über alle Rollen hinweg).</div>
+
+  <div id="invRoleContainers">
+    <div class="inv-role-block is-hidden" data-role-block="lokfuehrer">
+      <div class="subhead">Lokführer</div>
+      <button type="button" class="btn-secondary inv-add" data-role="lokfuehrer">Person hinzufügen</button>
+      <div class="inv-list" id="invList_lokfuehrer"></div>
+    </div>
+    <div class="inv-role-block is-hidden" data-role-block="rangierer">
+      <div class="subhead">Rangierer</div>
+      <button type="button" class="btn-secondary inv-add" data-role="rangierer">Person hinzufügen</button>
+      <div class="inv-list" id="invList_rangierer"></div>
+    </div>
+    <div class="inv-role-block is-hidden" data-role-block="wagenmeister">
+      <div class="subhead">Wagenmeister</div>
+      <button type="button" class="btn-secondary inv-add" data-role="wagenmeister">Person hinzufügen</button>
+      <div class="inv-list" id="invList_wagenmeister"></div>
+    </div>
+    <div class="inv-role-block is-hidden" data-role-block="andere">
+      <div class="subhead">Andere</div>
+      <button type="button" class="btn-secondary inv-add" data-role="andere">Person hinzufügen</button>
+      <div class="inv-list" id="invList_andere"></div>
+    </div>
+  </div>
+
+  <div class="subhead">Bemerkungen zur Alarmierung</div>
+  <div class="field">
+    <textarea id="alarm_bemerkungen" rows="4" placeholder="Bemerkungen (optional)"></textarea>
+    <div class="hint">Freitext</div>
+  </div>
+
+  <!-- ===================== -->
+  <!-- 2) EREIGNISDATEN      -->
+  <!-- ===================== -->
   <div class="section-title"><div>Ereignisdaten</div></div>
-  <!-- Ereignisart -->
+
   <div class="subhead">Ereignisart</div>
-  <div id="evPillars" class="pillars"></div>
-  <!-- Variante -->
+  <div id="evPillars" class="pillars">
+    <div class="pillar locked" style="cursor:default;background:#f0f0f0;border:1px dashed #bbb;">Lädt Ereignisarten aus assets/entscheidungsbaum.json …</div>
+  </div>
+
   <div id="varSection" class="is-hidden">
     <div class="subhead">Variante</div>
     <div id="varPillars" class="pillars"></div>
   </div>
+
+  <!-- Hidden keys for decisions -->
   <input type="hidden" id="ev_key" value="">
   <input type="hidden" id="var_key" value="">
 
-  <!-- Zug / Fahrzeug -->
   <div class="subhead" style="margin-top:28px;">Zug / Fahrzeug</div>
   <div id="zugfahrzeugPillars" class="pillars" style="grid-template-columns:repeat(3,1fr);">
     <div class="pillar" data-mode="zug">Zugnummer</div>
@@ -72,198 +241,1009 @@
     <div class="hint" id="zugfahrzeugHint">Wähle oben Zugnummer, Loknummer oder Wagennummer. Die Auswahl wird grün markiert.</div>
   </div>
 
-  <!-- Ereignisort -->
   <div class="subhead" style="margin-top:22px;">Ereignisort</div>
   <div id="ortPillars" class="pillars" style="grid-template-columns:repeat(3,1fr);">
     <div class="pillar" data-ort="strecke">Strecke</div>
     <div class="pillar" data-ort="bahnhof">Bahnhof</div>
     <div class="pillar" data-ort="anschluss">Anschlussgleis</div>
   </div>
-  <!-- Bahnhof -->
-  <div id="ortBahnhof" class="field is-hidden">
-    <button type="button" id="btnPickBahnhof">Station wählen (SUFU)</button>
-    <div class="hint" id="viewBahnhof">—</div>
-    <button type="button" id="btnPickZugziel">Zugziel wählen (SUFU)</button>
-    <div class="hint" id="viewZugziel">—</div>
-  </div>
-  <!-- Strecke -->
-  <div id="ortStrecke" class="field is-hidden">
-    <button type="button" id="btnPickStart">Start wählen (SUFU)</button>
-    <div class="hint" id="viewStart">—</div>
-    <button type="button" id="btnPickZiel">Ziel wählen (SUFU)</button>
-    <div class="hint" id="viewZiel">—</div>
-  </div>
-  <!-- Anschlussgleis -->
-  <div id="ortAnschluss" class="field is-hidden">
-    <button type="button" id="btnPickAnschluss">Station wählen (SUFU)</button>
-    <div class="hint" id="viewAnschluss">—</div>
-    <input type="text" id="anschlussText" placeholder="Anschluss / Gleis">
-  </div>
-  <!-- Kartenanzeige -->
-  <div class="map-placeholder" id="mapBox">SVG‑Karte (Anzeige, wird aus Ort gesteuert)</div>
-  <!-- Bemerkungen -->
-  <div class="field">
-    <div style="font-weight:800;margin-bottom:8px;">Bemerkungen</div>
-    <textarea id="bemerkungen" rows="3" placeholder="Bemerkungen (optional)"></textarea>
-  </div>
-  <!-- Fotos-Upload -->
-  <div class="subhead" style="margin-top:22px;">Anlagen – Fotos</div>
-  <div class="field">
-    <input id="photoInput" type="file" accept="image/*" multiple>
-    <div class="hint">Fotos werden sofort als Vorschaubild angezeigt. Optimierung beim Versenden kommt später.</div>
-    <div id="photoGrid" class="photo-grid"></div>
+
+  <div class="row-map">
+    <div>
+      <div id="ortBahnhof" class="field is-hidden">
+        <button type="button" class="btn-secondary" id="btnPickBahnhof">Station wählen (SUFU)</button>
+        <div class="hint" id="viewBahnhof">—</div>
+        <button type="button" class="btn-secondary" id="btnPickZugziel">Zugziel wählen (SUFU)</button>
+        <div class="hint" id="viewZugziel">—</div>
+      </div>
+
+      <div id="ortStrecke" class="field is-hidden">
+        <button type="button" class="btn-secondary" id="btnPickStart">Start wählen (SUFU)</button>
+        <div class="hint" id="viewStart">—</div>
+        <button type="button" class="btn-secondary" id="btnPickZiel">Ziel wählen (SUFU)</button>
+        <div class="hint" id="viewZiel">—</div>
+      </div>
+
+      <div id="ortAnschluss" class="field is-hidden">
+        <button type="button" class="btn-secondary" id="btnPickAnschluss">Station wählen (SUFU)</button>
+        <div class="hint" id="viewAnschluss">—</div>
+        <input type="text" id="anschlussText" placeholder="Anschluss / Gleis">
+      </div>
+
+      <div class="field" style="margin-top:12px;">
+        <div style="font-weight:800;margin-bottom:8px;">Bemerkungen</div>
+        <textarea id="ereignis_bemerkungen" rows="3" placeholder="Bemerkungen (optional)"></textarea>
+      </div>
+    </div>
+
+    <div>
+      <div class="subhead" style="margin-top:0;">Karte (Anzeige)</div>
+      <div class="map-toolbar">
+        <button type="button" class="btn-secondary" id="btnMapReset">Zoom zurücksetzen</button>
+        <span class="hint" id="mapStatus">map.svg: nicht geladen</span>
+      </div>
+      <div id="mapBox" class="map-wrap loading"></div>
+      <div class="hint">Die Karte ist Anzeige-only. Zoom/Markierung erfolgt automatisch aus der Ortsauswahl.</div>
+    </div>
   </div>
 
-  <!-- Abschnitt: Entscheidung -->
-  <div class="section-title"><div>Entscheidung</div></div>
+  <!-- ===================== -->
+  <!-- 3) ENTSCHEIDUNGEN     -->
+  <!-- ===================== -->
+  <div class="section-title"><div>Entscheidungen</div></div>
+
   <div class="subhead">EVU / Führend</div>
   <div class="row-2">
-    <div class="field" style="max-width:none;">
+    <div class="field">
       <div style="font-weight:900;margin-bottom:6px;">EVU (für Führend-Logik)</div>
-      <select id="evu_select"></select>
-      <div class="hint">„Führend“ wird aus <code>fuehrend</code> (MEV/KUNDE) und <code>fuehrend_overrides</code> berechnet.</div>
+      <select id="evu_select"><option value="">Lädt EVU …</option></select>
+      <div class="hint">EVU kommt aus assets/entscheidungsbaum.json</div>
     </div>
-    <div class="field" style="max-width:none;">
+    <div class="field">
       <div style="font-weight:900;margin-bottom:6px;">Führend (Anzeige)</div>
       <div id="fuehrend_view" class="sysbox">—</div>
       <div class="hint" id="fuehrend_hint">Wird nach Auswahl von Ereignisart/Variante automatisch gesetzt.</div>
     </div>
   </div>
-  <div class="subhead">Bewertung (aus Entscheidungsbaum) <span class="badge" id="autoBadge">Auto</span></div>
+
+  <div class="subhead">Bewertung <span class="badge" id="autoBadge">Auto</span></div>
   <div class="row-2">
-    <div class="field" style="max-width:none;">
+    <div class="field">
       <label style="font-weight:900;display:flex;gap:10px;align-items:center;">
         <input type="checkbox" id="override_toggle"> Manuell überschreiben
       </label>
-      <div class="hint">Wenn ausgeschaltet, werden EL/RB/FS/EK automatisch aus <code>flags</code> gesetzt.</div>
+      <div class="hint">Wenn ausgeschaltet, werden EL/RB/FS/EK automatisch aus dem Entscheidungsbaum gesetzt.</div>
     </div>
-    <div class="field" style="max-width:none;">
+    <div class="field">
       <div style="font-weight:900;margin-bottom:6px;">Quelle</div>
       <div id="source_view" class="hint">—</div>
     </div>
   </div>
+
   <div id="flags_pillars" class="pillars" style="grid-template-columns:repeat(4,1fr);">
     <div class="pillar locked" data-flag="EL">Einsatzleitung (EL)</div>
     <div class="pillar locked" data-flag="RB">Rufbereitschaft (RB)</div>
     <div class="pillar locked" data-flag="FS">Fahrtstopp (FS) 🛑</div>
     <div class="pillar locked" data-flag="EK">Erweiterter Kreis (EK)</div>
   </div>
+
   <div class="subhead">Rufbereitschaft</div>
   <div class="card is-inactive" id="rb_card">
     <div style="font-weight:900;margin-bottom:8px;">Aktuell (Notfallmanagement)</div>
-    <div class="pillars" style="grid-template-columns:repeat(3,1fr);margin-top:0;">
-      <div class="pillar small locked" id="rb_name"><div class="p-label">Name</div><div class="p-value">—</div></div>
-      <div class="pillar small locked" id="rb_mail"><div class="p-label">Mail</div><div class="p-value">—</div></div>
-      <div class="pillar small locked" id="rb_zeit"><div class="p-label">Zeitraum</div><div class="p-value">—</div></div>
+    <div class="pillars" style="grid-template-columns:repeat(4,1fr);margin-top:0;">
+      <div class="pillar small locked" style="cursor:default;"><div class="p-label">Name</div><div class="p-value" id="rb_name">—</div></div>
+      <div class="pillar small locked" style="cursor:default;"><div class="p-label">Mail</div><div class="p-value" id="rb_mail">—</div></div>
+      <div class="pillar small locked" style="cursor:default;"><div class="p-label">Telefon</div><div class="p-value" id="rb_tel">—</div></div>
+      <div class="pillar small locked" style="cursor:default;"><div class="p-label">Zeitraum</div><div class="p-value" id="rb_zeit">—</div></div>
     </div>
-    <div class="hint" id="rb_hint">Wird aus <code>rufbereitschaft_plan.json</code> anhand <code>start</code>/<code>ende</code> ermittelt.</div>
+    <div class="hint" id="rb_hint">Wird aus assets/rufbereitschaft_plan.json ermittelt.</div>
   </div>
+
   <div class="subhead">Massnahmen</div>
   <div id="massnahme_status" class="pillars" style="grid-template-columns:repeat(3,1fr);">
     <div class="pillar" data-mass="erledigt">Massnahme erledigt</div>
     <div class="pillar" data-mass="offen">Massnahme offen</div>
     <div class="pillar" data-mass="nicht">Massnahme nicht erforderlich</div>
   </div>
+
   <div class="field">
-    <div style="font-weight:800;margin-bottom:6px;">Massnahmen / Auftrag</div>
+    <div style="font-weight:900;margin-bottom:6px;">Massnahmen / Auftrag</div>
     <textarea id="massnahmen_text" rows="4" placeholder="Massnahmen (optional)"></textarea>
-    <div class="hint">Freitext. (Aufgabenliste kann später ergänzt werden.)</div>
+    <div class="hint">Freitext</div>
   </div>
+
   <div class="field" style="margin-top:12px;">
-    <div style="font-weight:800;margin-bottom:6px;">Bemerkungen zur Entscheidung</div>
+    <div style="font-weight:900;margin-bottom:6px;">Bemerkungen zur Entscheidung</div>
     <textarea id="entscheid_bemerkungen" rows="3" placeholder="Bemerkungen (optional)"></textarea>
   </div>
+
+  <!-- ===================== -->
+  <!-- 4) FOTOS (optional)   -->
+  <!-- ===================== -->
+  <div class="section-title"><div>Fotos (optional)</div></div>
+  <div class="field">
+    <div style="font-weight:900;margin-bottom:6px;">Fotos auswählen</div>
+    <input id="photoInput" type="file" accept="image/*" multiple>
+    <div class="hint">Empfohlen: max. 4 Fotos / total max. 10 MB</div>
+  </div>
+  <div class="photos" id="photoPreview" style="margin-top:12px;"></div>
+
 </div>
 
 <script>
-/* Pillars, SUFU, Entscheidungsbaum, Rufbereitschaft, Fotos-Upload, Übergabe der Keys */
-(function(){
-  // Entscheidungsbaum
-  const TREE_URL = 'assets/entscheidungsbaum.json';
-  const RB_URL   = 'assets/rufbereitschaft_plan.json';
+/* =========================================================
+   Meldeformular – Gesamtlogik (GitHub assets/*)
+   - Alarmierung (Mitarbeiter/Intern-Extern/Involvierte)
+   - Ereignisdaten (Entscheidungsbaum + SUFU Stationen + Karte)
+   - Entscheidungen (Auto Flags + Führend + Rufbereitschaft)
+   - Export JSON
+========================================================= */
 
-  // Ereignisart/Variante
+(async function(){
+  const URL_STAFF = 'assets/mitarbeiter.json';
+  const URL_TREE  = 'assets/entscheidungsbaum.json';
+  const URL_RB    = 'assets/rufbereitschaft_plan.json';
+  const URL_STATIONS = 'assets/stationen_aus_svg.json';
+  const URL_MAP = 'assets/map.svg';
+
+  const pad = (n)=> String(n).padStart(2,'0');
+  const now = new Date();
+  const todayISO = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  const timeHHMM = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  const fmtDate = (d)=> d.toLocaleDateString('de-CH');
+
+  function setCardActive(card, active){
+    card.classList.toggle('is-active', !!active);
+    card.classList.toggle('is-inactive', !active);
+  }
+  function showIf(el, val){
+    const has = !!(val && String(val).trim());
+    el.classList.toggle('is-hidden', !has);
+  }
+  function escapeHtml(s){
+    return String(s)
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'",'&#39;');
+  }
+
+  // Prefill Meldung Datum/Uhrzeit
+  const meldD = document.getElementById('meldung_datum');
+  const meldT = document.getElementById('meldung_uhrzeit');
+  if(!meldD.value) meldD.value = todayISO;
+  if(!meldT.value) meldT.value = timeHHMM;
+
+  // Erfasser Systemzeit
+  document.getElementById('erfasser_sys_datum').textContent = fmtDate(now);
+  document.getElementById('erfasser_sys_uhrzeit').textContent = timeHHMM;
+
+  // Load Mitarbeitende
+  let staffFlat = [];
+  let staffByMail = new Map();
+  try{
+    const res = await fetch(URL_STAFF);
+    const json = await res.json();
+    const byDept = json.employeesByDepartment || {};
+    for(const [dept, list] of Object.entries(byDept)){
+      if(!Array.isArray(list)) continue;
+      for(const p of list){
+        if(!p || p.aktiv === false) continue;
+        const row = {
+          dept,
+          mev_id: p.mev_id || '',
+          vorname: p.vorname || '',
+          nachname: p.nachname || '',
+          mail: p.mail || '',
+          tel: p.tel || ''
+        };
+        staffFlat.push(row);
+        if(row.mail) staffByMail.set(row.mail.toLowerCase(), row);
+      }
+    }
+    staffFlat.sort((a,b)=> (a.nachname+' '+a.vorname).localeCompare(b.nachname+' '+b.vorname, 'de-CH'));
+  }catch(err){
+    console.warn('Mitarbeiterliste konnte nicht geladen werden:', err);
+  }
+
+  const optionsHTML = ['<option value="">Bitte wählen</option>']
+    .concat(staffFlat.map(p=>{
+      const label = `${p.nachname} ${p.vorname} (${p.dept})`;
+      const val = p.mev_id || label;
+      return `<option value="${escapeHtml(val)}" data-vorname="${escapeHtml(p.vorname)}" data-nachname="${escapeHtml(p.nachname)}" data-mail="${escapeHtml(p.mail)}" data-tel="${escapeHtml(p.tel)}">${escapeHtml(label)}</option>`;
+    })).join('');
+
+  // Melder intern/extern
+  const melderInternCard = document.getElementById('melderInternCard');
+  const melderExternCard = document.getElementById('melderExternCard');
+  const melderInternSelect = document.getElementById('melderInternSelect');
+  melderInternSelect.innerHTML = optionsHTML;
+
+  const mTyp = document.getElementById('melder_typ');
+  const mVorP = document.getElementById('melder_vor_P');
+  const mNachP = document.getElementById('melder_nach_P');
+  const mMailP = document.getElementById('melder_mail_P');
+  const mTelP = document.getElementById('melder_tel_P');
+  const mVor = document.getElementById('melder_vor');
+  const mNach = document.getElementById('melder_nach');
+  const mMail = document.getElementById('melder_mail');
+  const mTel = document.getElementById('melder_tel');
+
+  const exFirma = document.getElementById('melderExternFirma');
+  const exVor = document.getElementById('melderExternVor');
+  const exNach = document.getElementById('melderExternNach');
+  const exMail = document.getElementById('melderExternMail');
+  const exTel = document.getElementById('melderExternTel');
+
+  function resetMelderPillars(){
+    mTyp.textContent='—'; mVor.textContent='—'; mNach.textContent='—'; mMail.textContent='—'; mTel.textContent='—';
+    showIf(mVorP,''); showIf(mNachP,''); showIf(mMailP,''); showIf(mTelP,'');
+  }
+  function setMelderIntern(opt){
+    mTyp.textContent='Intern';
+    const v = opt.dataset.vorname||'';
+    const n = opt.dataset.nachname||'';
+    const mail = opt.dataset.mail||'';
+    const tel = opt.dataset.tel||'';
+    mVor.textContent = v||'—';
+    mNach.textContent = n||'—';
+    mMail.textContent = mail||'—';
+    mTel.textContent = tel||'—';
+    showIf(mVorP,v); showIf(mNachP,n); showIf(mMailP,mail); showIf(mTelP,tel);
+  }
+  function setMelderExtern(){
+    mTyp.textContent='Extern';
+    const v = (exVor.value||'').trim();
+    const n = (exNach.value||'').trim();
+    const mail = (exMail.value||'').trim();
+    const tel = (exTel.value||'').trim();
+    mVor.textContent = v||'—';
+    mNach.textContent = n||'—';
+    mMail.textContent = mail||'—';
+    mTel.textContent = tel||'—';
+    showIf(mVorP,v); showIf(mNachP,n); showIf(mMailP,mail); showIf(mTelP,tel);
+  }
+  function clearMelderExtern(){ exFirma.value=''; exVor.value=''; exNach.value=''; exMail.value=''; exTel.value=''; }
+  function clearMelderIntern(){ melderInternSelect.value=''; }
+
+  melderInternSelect.addEventListener('change', ()=>{
+    if(melderInternSelect.value){
+      setCardActive(melderInternCard,true);
+      setCardActive(melderExternCard,false);
+      clearMelderExtern();
+      setMelderIntern(melderInternSelect.selectedOptions[0]);
+    } else {
+      setCardActive(melderInternCard,false);
+      resetMelderPillars();
+    }
+  });
+  function melderExternChanged(){
+    const any = [exFirma,exVor,exNach,exMail,exTel].some(i => (i.value||'').trim().length>0);
+    if(any){
+      setCardActive(melderExternCard,true);
+      setCardActive(melderInternCard,false);
+      clearMelderIntern();
+      setMelderExtern();
+    } else {
+      setCardActive(melderExternCard,false);
+      resetMelderPillars();
+    }
+  }
+  [exFirma,exVor,exNach,exMail,exTel].forEach(el=> el.addEventListener('input', melderExternChanged));
+
+  resetMelderPillars();
+  setCardActive(melderInternCard,false);
+  setCardActive(melderExternCard,false);
+
+  // Erfasser Auswahl
+  const erfasserCard = document.getElementById('erfasserCard');
+  const erfasserSelect = document.getElementById('erfasserSelect');
+  erfasserSelect.innerHTML = optionsHTML;
+
+  const eTyp = document.getElementById('erfasser_typ');
+  const eVorP = document.getElementById('erfasser_vor_P');
+  const eNachP = document.getElementById('erfasser_nach_P');
+  const eMailP = document.getElementById('erfasser_mail_P');
+  const eTelP = document.getElementById('erfasser_tel_P');
+  const eVor = document.getElementById('erfasser_vor');
+  const eNach = document.getElementById('erfasser_nach');
+  const eMail = document.getElementById('erfasser_mail');
+  const eTel = document.getElementById('erfasser_tel');
+
+  function resetErfasser(){
+    eTyp.textContent='—'; eVor.textContent='—'; eNach.textContent='—'; eMail.textContent='—'; eTel.textContent='—';
+    showIf(eVorP,''); showIf(eNachP,''); showIf(eMailP,''); showIf(eTelP,'');
+    setCardActive(erfasserCard,false);
+  }
+  erfasserSelect.addEventListener('change', ()=>{
+    if(!erfasserSelect.value){ resetErfasser(); return; }
+    const opt = erfasserSelect.selectedOptions[0];
+    setCardActive(erfasserCard,true);
+    eTyp.textContent='Intern';
+    const v = opt.dataset.vorname||'';
+    const n = opt.dataset.nachname||'';
+    const mail = opt.dataset.mail||'';
+    const tel = opt.dataset.tel||'';
+    eVor.textContent=v||'—'; eNach.textContent=n||'—'; eMail.textContent=mail||'—'; eTel.textContent=tel||'—';
+    showIf(eVorP,v); showIf(eNachP,n); showIf(eMailP,mail); showIf(eTelP,tel);
+  });
+  resetErfasser();
+
+  // Involvierte (max 3)
+  const MAX_PERSONS = 3;
+  const invRoles = document.getElementById('invRoles');
+  const invHint = document.getElementById('invHint');
+  const addButtons = ()=> Array.from(document.querySelectorAll('.inv-add'));
+  let personCount = 0;
+
+  function roleLabel(role){
+    return ({lokfuehrer:'Lokführer', rangierer:'Rangierer', wagenmeister:'Wagenmeister', andere:'Andere'})[role] || role;
+  }
+  function setLimitUI(){
+    const left = MAX_PERSONS - personCount;
+    invHint.textContent = `Maximal ${MAX_PERSONS} involvierte Personen erfassen (über alle Rollen hinweg). Verfügbar: ${left}.`;
+    const disable = personCount >= MAX_PERSONS;
+    addButtons().forEach(b => b.disabled = disable);
+  }
+
+  invRoles.addEventListener('click', (e)=>{
+    const pill = e.target.closest('.pillar');
+    if(!pill) return;
+    pill.classList.toggle('active');
+    const role = pill.dataset.role;
+    const block = document.querySelector(`[data-role-block="${role}"]`);
+    if(block) block.classList.toggle('is-hidden', !pill.classList.contains('active'));
+  });
+
+  document.addEventListener('click', (e)=>{
+    const btn = e.target.closest('.inv-add');
+    if(!btn) return;
+    if(personCount >= MAX_PERSONS){ setLimitUI(); return; }
+    addInvPerson(btn.dataset.role);
+  });
+
+  document.addEventListener('click', (e)=>{
+    const rm = e.target.closest('.inv-remove');
+    if(!rm) return;
+    const person = rm.closest('.inv-person');
+    if(person){ person.remove(); personCount = Math.max(0, personCount-1); setLimitUI(); }
+  });
+
+  function addInvPerson(role){
+    personCount++;
+    const list = document.getElementById(`invList_${role}`);
+    const idx = list.children.length + 1;
+
+    const el = document.createElement('div');
+    el.className = 'inv-person';
+    el.dataset.role = role;
+    el.innerHTML = `
+      <div class="inv-person-header">
+        <div class="inv-badge">${roleLabel(role)} #${idx}</div>
+        <div class="inv-actions">
+          <button type="button" class="btn-secondary inv-remove">Entfernen</button>
+        </div>
+      </div>
+      <div class="row-2">
+        <div class="card is-inactive inv-intern">
+          <div style="font-weight:900;margin-bottom:8px;">Intern</div>
+          <select class="inv-intern-select">${optionsHTML}</select>
+          <div class="pillars" style="margin-top:12px;grid-template-columns:repeat(3,1fr);">
+            <div class="pillar small locked" style="cursor:default;"><div class="p-label">Typ</div><div class="p-value inv_typ">—</div></div>
+            <div class="pillar small locked" style="cursor:default;"><div class="p-label">Rolle</div><div class="p-value">${roleLabel(role)}</div></div>
+            <div class="pillar small locked is-hidden inv_vorP" style="cursor:default;"><div class="p-label">Vorname</div><div class="p-value inv_vor">—</div></div>
+            <div class="pillar small locked is-hidden inv_nachP" style="cursor:default;"><div class="p-label">Nachname</div><div class="p-value inv_nach">—</div></div>
+            <div class="pillar small locked is-hidden inv_mailP" style="cursor:default;"><div class="p-label">Mail</div><div class="p-value inv_mail">—</div></div>
+            <div class="pillar small locked is-hidden inv_telP" style="cursor:default;"><div class="p-label">Telefon</div><div class="p-value inv_tel">—</div></div>
+          </div>
+        </div>
+
+        <div class="card is-inactive inv-extern">
+          <div style="font-weight:900;margin-bottom:8px;">Extern</div>
+          <input class="inv_firma" type="text" placeholder="Unternehmen (optional)">
+          <div class="row-2" style="margin-top:10px;">
+            <input class="inv_vor_in" type="text" placeholder="Vorname (optional)">
+            <input class="inv_nach_in" type="text" placeholder="Nachname (optional)">
+          </div>
+          <div class="row-2" style="margin-top:10px;">
+            <input class="inv_mail_in" type="email" placeholder="Mail (optional)">
+            <input class="inv_tel_in" type="tel" placeholder="Telefon (optional)">
+          </div>
+          <div class="hint">Es wird nur angezeigt, was erfasst wurde.</div>
+        </div>
+      </div>
+    `;
+    list.appendChild(el);
+    setLimitUI();
+  }
+
+  // Intern/Extern Umschaltung pro Person
+  document.addEventListener('change', (e)=>{
+    const sel = e.target.closest('.inv-intern-select');
+    if(!sel) return;
+    const person = sel.closest('.inv-person');
+    if(!person) return;
+    const internCard = person.querySelector('.inv-intern');
+    const externCard = person.querySelector('.inv-extern');
+
+    if(sel.value){
+      setCardActive(internCard,true);
+      setCardActive(externCard,false);
+    } else {
+      setCardActive(internCard,false);
+    }
+  });
+
+  document.addEventListener('input', (e)=>{
+    const person = e.target.closest('.inv-person');
+    if(!person) return;
+    if(!e.target.closest('.inv-extern')) return;
+
+    const internCard = person.querySelector('.inv-intern');
+    const externCard = person.querySelector('.inv-extern');
+
+    const firma = (person.querySelector('.inv_firma')?.value||'').trim();
+    const vor = (person.querySelector('.inv_vor_in')?.value||'').trim();
+    const nach = (person.querySelector('.inv_nach_in')?.value||'').trim();
+    const mail = (person.querySelector('.inv_mail_in')?.value||'').trim();
+    const tel = (person.querySelector('.inv_tel_in')?.value||'').trim();
+
+    const any = !!(firma || vor || nach || mail || tel);
+    if(any){
+      setCardActive(externCard,true);
+      setCardActive(internCard,false);
+      const sel = person.querySelector('.inv-intern-select');
+      if(sel) sel.value='';
+    } else {
+      setCardActive(externCard,false);
+    }
+  });
+
+  setLimitUI();
+
+  // ===== Stationen + Map =====
+  let STATIONS = [];
+  let mapSvg = null;
+  let mapDefaultViewBox = null;
+
+  const mapBox = document.getElementById('mapBox');
+  const mapStatus = document.getElementById('mapStatus');
+
+  async function loadStations(){
+    const res = await fetch(URL_STATIONS);
+    STATIONS = await res.json();
+  }
+  async function loadMap(){
+    mapBox.classList.add('loading');
+    const res = await fetch(URL_MAP);
+    const svgText = await res.text();
+    mapBox.innerHTML = svgText;
+    mapSvg = mapBox.querySelector('svg');
+    if(!mapSvg) throw new Error('map.svg enthält kein <svg>');
+    mapSvg.style.width = '100%';
+    mapSvg.style.height = '100%';
+    mapSvg.style.pointerEvents = 'none';
+    mapDefaultViewBox = mapSvg.getAttribute('viewBox');
+    mapBox.classList.remove('loading');
+    mapStatus.textContent = 'map.svg: geladen';
+  }
+
+  function findStationElement(svg, station){
+    if(!svg || !station) return null;
+    const code = (station.code||'').toString().trim();
+    const id = (station.id||'').toString().trim();
+    if(code){
+      const el = svg.querySelector(`[data-code="${CSS.escape(code)}"]`);
+      if(el) return el;
+    }
+    if(id){
+      const el = svg.querySelector(`#${CSS.escape(id)}`);
+      if(el) return el;
+    }
+    return null;
+  }
+  function setHighlight(svg, el){
+    if(!svg) return;
+    svg.querySelectorAll('.svg-station-selected').forEach(x=> x.classList.remove('svg-station-selected'));
+    if(el) el.classList.add('svg-station-selected');
+  }
+  function zoomToPosition(svg, pos, padding=60){
+    if(!svg || !pos) return;
+    const x = pos.x - padding;
+    const y = pos.y - padding;
+    const w = pos.width + padding*2;
+    const h = pos.height + padding*2;
+    svg.setAttribute('viewBox', `${x} ${y} ${w} ${h}`);
+  }
+  function zoomToTwoStations(svg, a, b, padding=80){
+    if(!svg || !a || !b) return;
+    const p1 = a.position; const p2 = b.position;
+    if(!p1 || !p2) return;
+    const x1 = Math.min(p1.x, p2.x);
+    const y1 = Math.min(p1.y, p2.y);
+    const x2 = Math.max(p1.x + p1.width,  p2.x + p2.width);
+    const y2 = Math.max(p1.y + p1.height, p2.y + p2.height);
+    svg.setAttribute('viewBox', `${x1-padding} ${y1-padding} ${(x2-x1)+padding*2} ${(y2-y1)+padding*2}`);
+  }
+  function resetMapView(){
+    if(mapSvg && mapDefaultViewBox) mapSvg.setAttribute('viewBox', mapDefaultViewBox);
+    if(mapSvg) setHighlight(mapSvg, null);
+  }
+  document.getElementById('btnMapReset').addEventListener('click', resetMapView);
+
+  function openStationPicker(title, cb){
+    const ov = document.createElement('div');
+    ov.className = 'overlay';
+    ov.addEventListener('click', (e)=>{ if(e.target===ov) ov.remove(); });
+    const box = document.createElement('div');
+    box.className = 'overlay-box';
+    ov.appendChild(box);
+
+    box.innerHTML = `
+      <div style="font-weight:900;margin-bottom:10px;">${escapeHtml(title)}</div>
+      <input class="sufu-input" placeholder="Suche nach Code oder Name …">
+      <div class="sufu-list"></div>
+      <div style="display:flex;gap:10px;margin-top:10px;justify-content:flex-end;">
+        <button type="button" class="btn-secondary">Schliessen</button>
+      </div>
+    `;
+
+    const input = box.querySelector('.sufu-input');
+    const list = box.querySelector('.sufu-list');
+    const closeBtn = box.querySelector('.btn-secondary');
+    closeBtn.onclick = ()=> ov.remove();
+
+    function render(q){
+      q = (q||'').trim().toLowerCase();
+      list.innerHTML = '';
+
+      let filtered;
+      if(!q){
+        filtered = STATIONS.slice(0, 200);
+      } else {
+        filtered = STATIONS.filter(s=>{
+          const code = (s.code||'').toString().toLowerCase();
+          const label = (s.label||'').toString().toLowerCase();
+          return code.includes(q) || label.includes(q);
+        }).slice(0, 400);
+      }
+
+      filtered.sort((a,b)=>{
+        const ac = (a.code||'').toString();
+        const bc = (b.code||'').toString();
+        if(ac && bc) return ac.localeCompare(bc,'de-CH');
+        return (a.label||'').toString().localeCompare((b.label||'').toString(),'de-CH');
+      });
+
+      for(const s of filtered){
+        const code = (s.code||'').toString().trim();
+        const label = (s.label||'').toString().trim();
+        const item = document.createElement('div');
+        item.className = 'sufu-item';
+        item.innerHTML = `
+          <div style="font-weight:900;">${escapeHtml(code ? (code + ' – ') : '')}${escapeHtml(label || '—')}</div>
+          <div class="sufu-small">${escapeHtml(s.id||'')}</div>
+        `;
+        item.onclick = ()=>{ ov.remove(); cb(s); };
+        list.appendChild(item);
+      }
+      if(filtered.length === 0){
+        const item = document.createElement('div');
+        item.className = 'sufu-item';
+        item.innerHTML = '<div style="font-weight:900;">Kein Treffer</div>';
+        list.appendChild(item);
+      }
+    }
+
+    input.addEventListener('input', ()=> render(input.value));
+    render('');
+    document.body.appendChild(ov);
+    input.focus();
+  }
+
+  // Ort-Pillars
+  const ortPillars = document.getElementById('ortPillars');
+  const ortBahnhof = document.getElementById('ortBahnhof');
+  const ortStrecke = document.getElementById('ortStrecke');
+  const ortAnschluss = document.getElementById('ortAnschluss');
+
+  let ortSelection = { bahnhof:null, zugziel:null, start:null, ziel:null, anschluss:null };
+
+  ortPillars.addEventListener('click', (e)=>{
+    const p = e.target.closest('.pillar');
+    if(!p) return;
+    const ort = p.dataset.ort;
+    [...ortPillars.querySelectorAll('.pillar')].forEach(x=> x.classList.toggle('active', x.dataset.ort === ort));
+    ortBahnhof.classList.toggle('is-hidden', ort !== 'bahnhof');
+    ortStrecke.classList.toggle('is-hidden', ort !== 'strecke');
+    ortAnschluss.classList.toggle('is-hidden', ort !== 'anschluss');
+  });
+
+  function setViewText(elId, station){
+    const el = document.getElementById(elId);
+    if(!station){ el.textContent = '—'; return; }
+    const code = (station.code||'').toString().trim();
+    const label = (station.label||'').toString().trim();
+    el.textContent = code ? `${code} – ${label}` : (label||'—');
+  }
+
+  // Bahnhof
+  document.getElementById('btnPickBahnhof').onclick = ()=>{
+    openStationPicker('Station (Bahnhof) wählen', (s)=>{
+      ortSelection.bahnhof = s;
+      setViewText('viewBahnhof', s);
+      if(mapSvg){
+        zoomToPosition(mapSvg, s.position, 70);
+        setHighlight(mapSvg, findStationElement(mapSvg, s));
+      }
+    });
+  };
+  document.getElementById('btnPickZugziel').onclick = ()=>{
+    openStationPicker('Zugziel wählen', (s)=>{
+      ortSelection.zugziel = s;
+      setViewText('viewZugziel', s);
+    });
+  };
+
+  // Strecke
+  document.getElementById('btnPickStart').onclick = ()=>{
+    openStationPicker('Start wählen', (s)=>{
+      ortSelection.start = s;
+      setViewText('viewStart', s);
+      if(mapSvg && ortSelection.ziel) zoomToTwoStations(mapSvg, ortSelection.start, ortSelection.ziel, 90);
+    });
+  };
+  document.getElementById('btnPickZiel').onclick = ()=>{
+    openStationPicker('Ziel wählen', (s)=>{
+      ortSelection.ziel = s;
+      setViewText('viewZiel', s);
+      if(mapSvg && ortSelection.start) zoomToTwoStations(mapSvg, ortSelection.start, ortSelection.ziel, 90);
+    });
+  };
+
+  // Anschluss
+  document.getElementById('btnPickAnschluss').onclick = ()=>{
+    openStationPicker('Station (Anschlussgleis) wählen', (s)=>{
+      ortSelection.anschluss = s;
+      setViewText('viewAnschluss', s);
+      if(mapSvg){
+        zoomToPosition(mapSvg, s.position, 70);
+        setHighlight(mapSvg, findStationElement(mapSvg, s));
+      }
+    });
+  };
+
+  // Zug/Fahrzeug
+  const zP = document.getElementById('zugfahrzeugPillars');
+  const zIn = document.getElementById('zugfahrzeugInput');
+  const zHi = document.getElementById('zugfahrzeugHint');
+  let zugMode = '';
+  zP.addEventListener('click', (e)=>{
+    const p = e.target.closest('.pillar');
+    if(!p) return;
+    zugMode = p.dataset.mode;
+    [...zP.querySelectorAll('.pillar')].forEach(x => x.classList.toggle('active', x.dataset.mode === zugMode));
+    if(zugMode==='zug'){ zIn.placeholder='Zugnummer eingeben'; zHi.textContent='Zugnummer gewählt (grün).'; }
+    if(zugMode==='lok'){ zIn.placeholder='Loknummer eingeben'; zHi.textContent='Loknummer gewählt (grün).'; }
+    if(zugMode==='wagen'){ zIn.placeholder='Wagennummer eingeben (optional mehrere mit Komma)'; zHi.textContent='Wagennummer gewählt (grün).'; }
+  });
+
+  // ===== Entscheidungsbaum / Entscheidungen =====
   const evWrap = document.getElementById('evPillars');
   const varSection = document.getElementById('varSection');
   const varWrap = document.getElementById('varPillars');
   const evKeyEl = document.getElementById('ev_key');
   const varKeyEl = document.getElementById('var_key');
+
+  const evuSelect = document.getElementById('evu_select');
+  const fuehrendView = document.getElementById('fuehrend_view');
+  const fuehrendHint = document.getElementById('fuehrend_hint');
+  const overrideToggle = document.getElementById('override_toggle');
+  const autoBadge = document.getElementById('autoBadge');
+  const sourceView = document.getElementById('source_view');
+  const flagsWrap = document.getElementById('flags_pillars');
+
+  const rbCard = document.getElementById('rb_card');
+  const rbName = document.getElementById('rb_name');
+  const rbMail = document.getElementById('rb_mail');
+  const rbTel  = document.getElementById('rb_tel');
+  const rbZeit = document.getElementById('rb_zeit');
+  const rbHint = document.getElementById('rb_hint');
+
+  const massWrap = document.getElementById('massnahme_status');
+
+  let TREE = null;
   let events = [];
   let selectedEvent = null;
+
+  function setManualMode(on){
+    autoBadge.textContent = on ? 'Manuell' : 'Auto';
+    [...flagsWrap.querySelectorAll('.pillar')].forEach(p => p.classList.toggle('locked', !on));
+  }
+  function setFlag(flag, on){
+    const p = flagsWrap.querySelector(`.pillar[data-flag="${flag}"]`);
+    if(p) p.classList.toggle('active', !!on);
+  }
+  function setActivePillar(container, attr, value){
+    [...container.querySelectorAll('.pillar')].forEach(p=> p.classList.toggle('active', p.getAttribute(attr) === value));
+  }
+
+  flagsWrap.addEventListener('click', (e)=>{
+    if(!overrideToggle.checked) return;
+    const p = e.target.closest('.pillar');
+    if(!p) return;
+    p.classList.toggle('active');
+  });
+
+  massWrap.addEventListener('click', (e)=>{
+    const p = e.target.closest('.pillar');
+    if(!p) return;
+    setActivePillar(massWrap, 'data-mass', p.getAttribute('data-mass'));
+  });
+
+  function getSelectedEvu(){
+    const id = evuSelect.value || (TREE?.default?.evu ?? 'MEV');
+    const list = TREE?.evu || [];
+    return list.find(x=> x.id === id) || list.find(x=> x.id === 'MEV') || {id:'MEV',label:'MEV',verantwortlich:'MEV'};
+  }
+
+  function findVariant(evKey, varKey){
+    if(!TREE) return null;
+    const ev = (TREE.ereignisse || []).find(e=> e.key === evKey);
+    if(!ev) return null;
+    const v = (ev.varianten || []).find(x=> x.key === varKey);
+    if(!v) return null;
+    return {event: ev, variant: v};
+  }
+
+  function computeFuehrend(variant){
+    if(!TREE || !variant) return {text:'—', hint:'Ereignisart/Variante fehlt'};
+    const evu = getSelectedEvu();
+    let lead = '';
+    if(variant.fuehrend === 'MEV'){
+      lead = 'MEV';
+    } else {
+      lead = evu.verantwortlich || evu.id || evu.label;
+    }
+    const ov = variant.fuehrend_overrides || {};
+    if(ov[evu.id]) lead = ov[evu.id];
+    return {text: lead, hint: `Basis: ${variant.fuehrend === 'MEV' ? 'MEV führend' : 'EVU führend'} · EVU: ${evu.id}`};
+  }
+
+  function applyAutoDecisions(){
+    const evKey = (evKeyEl.value||'').trim();
+    const varKey = (varKeyEl.value||'').trim();
+    const found = findVariant(evKey, varKey);
+    if(!found){
+      sourceView.textContent = 'Keine gültige Kombination Ereignisart/Variante.';
+      ['EL','RB','FS','EK'].forEach(k=> setFlag(k,false));
+      fuehrendView.textContent = '—';
+      fuehrendHint.textContent = 'Wähle Ereignisart und Variante, dann wird Führend gesetzt.';
+      return;
+    }
+
+    const v = found.variant;
+    const flags = v.flags || {};
+    ['EL','RB','FS','EK'].forEach(k=> setFlag(k, !!flags[k]));
+    sourceView.textContent = `Entscheidungsbaum: ${found.event.etype} (${found.event.key}) → ${v.text} (${v.key})`;
+    const lead = computeFuehrend(v);
+    fuehrendView.textContent = lead.text;
+    fuehrendHint.textContent = lead.hint;
+  }
 
   function renderEvents(){
     evWrap.innerHTML = '';
     if(!events.length){
-      evWrap.innerHTML = '<div class="pillar" style="cursor:default;background:#f0f0f0;border:1px dashed #bbb;">Keine Ereignisse gefunden</div>';
+      evWrap.innerHTML = '<div class="pillar locked" style="cursor:default;background:#f0f0f0;border:1px dashed #bbb;">Keine Ereignisse gefunden</div>';
       return;
     }
-    events.forEach(e=>{
+    for(const e of events){
       const p = document.createElement('div');
       p.className = 'pillar';
       p.textContent = e.etype;
       p.setAttribute('data-evkey', e.key);
-      p.onclick = ()=>selectEvent(e.key);
+      p.onclick = ()=> selectEvent(e.key);
       evWrap.appendChild(p);
-    });
+    }
   }
+
   function renderVarianten(list){
     varWrap.innerHTML = '';
-    (list || []).forEach(v=>{
+    for(const v of (list||[])){
       const p = document.createElement('div');
       p.className = 'pillar';
       p.textContent = v.text;
       p.setAttribute('data-varkey', v.key);
-      p.onclick = ()=>selectVariante(v.key, v.text);
+      p.onclick = ()=> selectVariante(v.key);
       varWrap.appendChild(p);
-    });
-  }
-  function resetVariante(){
-    varWrap.innerHTML = '';
-    varSection.classList.add('is-hidden');
-    varKeyEl.value = '';
-  }
-  function selectEvent(key){
-    selectedEvent = events.find(x=>x.key===key) || null;
-    [...evWrap.querySelectorAll('.pillar')].forEach(p=>{
-      p.classList.toggle('active', p.getAttribute('data-evkey') === key);
-    });
-    if(!selectedEvent){resetVariante();evKeyEl.value='';return;}
-    evKeyEl.value = selectedEvent.key;
-    resetVariante();
-    renderVarianten(selectedEvent.varianten);
-    varSection.classList.remove('is-hidden');
-  }
-  function selectVariante(k, t){
-    [...varWrap.querySelectorAll('.pillar')].forEach(p=>{
-      p.classList.toggle('active', p.getAttribute('data-varkey') === k);
-    });
-    varKeyEl.value = k;
-    applyAutoDecisions();
-  }
-  async function loadDecisionTree(){
-    try{
-      const res = await fetch(TREE_URL);
-      const json = await res.json();
-      events = (json.ereignisse || []).map(e => ({
-        etype: e.etype || '',
-        key: e.key || '',
-        varianten: (e.varianten || []).map(v => ({
-          key: v.key || '',
-          text: v.text || ''
-        }))
-      })).filter(e => e.etype && e.key);
-      renderEvents();
-      resetVariante();
-    }catch(err){
-      evWrap.innerHTML = '<div class="pillar" style="cursor:default;background:#fff1f1;border:2px dashed #e53935;color:#b00020;">Fehler: assets/entscheidungsbaum.json konnte nicht geladen werden.</div>';
-      console.warn(err);
     }
   }
-  loadDecisionTree();
 
+  function selectEvent(key){
+    selectedEvent = events.find(x=> x.key===key) || null;
+    [...evWrap.querySelectorAll('.pillar')].forEach(p=> p.classList.toggle('active', p.getAttribute('data-evkey') === key));
 
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Meldeformular – Alarmierung, Ereignisdaten, Entscheidung</title>
-<style>
+    varKeyEl.value = '';
+    varWrap.innerHTML = '';
+    varSection.classList.add('is-hidden');
+
+    if(!selectedEvent){
+      evKeyEl.value = '';
+      if(!overrideToggle.checked) applyAutoDecisions();
+      return;
+    }
+
+    evKeyEl.value = selectedEvent.key;
+    renderVarianten(selectedEvent.varianten);
+    varSection.classList.remove('is-hidden');
+    if(!overrideToggle.checked) applyAutoDecisions();
+  }
+
+  function selectVariante(varKey){
+    [...varWrap.querySelectorAll('.pillar')].forEach(p=> p.classList.toggle('active', p.getAttribute('data-varkey') === varKey));
+    varKeyEl.value = varKey;
+    if(!overrideToggle.checked) applyAutoDecisions();
+  }
+
+  overrideToggle.addEventListener('change', ()=>{
+    setManualMode(overrideToggle.checked);
+    if(!overrideToggle.checked) applyAutoDecisions();
+  });
+
+  evuSelect.addEventListener('change', ()=> applyAutoDecisions());
+
+  // Load Decision Tree
+  try{
+    const res = await fetch(URL_TREE);
+    TREE = await res.json();
+
+    events = (TREE.ereignisse || []).map(e => ({
+      etype: e.etype || '',
+      key: e.key || '',
+      varianten: (e.varianten || []).map(v => ({ key: v.key || '', text: v.text || '' })),
+    })).filter(e => e.etype && e.key);
+
+    renderEvents();
+
+    evuSelect.innerHTML = '';
+    (TREE.evu || []).forEach(x=>{
+      evuSelect.appendChild(new Option(`${x.label} (${x.id})`, x.id));
+    });
+    evuSelect.value = (TREE.default && TREE.default.evu) ? TREE.default.evu : 'MEV';
+  }catch(err){
+    console.warn(err);
+    evWrap.innerHTML = '<div class="pillar locked" style="cursor:default;background:#fff1f1;border:2px dashed #e53935;color:#b00020;">Fehler: assets/entscheidungsbaum.json konnte nicht geladen werden.</div>';
+  }
+
+  // Rufbereitschaft + Telefon ergänzen (Join via Mail)
+  try{
+    const res = await fetch(URL_RB);
+    const RBPLAN = await res.json();
+
+    const nowD = new Date();
+    const entries = (RBPLAN || [])
+      .filter(x => ((x.gruppe||'').toLowerCase().includes('notfallmanagement')))
+      .map(x => ({...x, startD: new Date(x.start), endeD: new Date(x.ende)}))
+      .filter(x => nowD >= x.startD && nowD < x.endeD);
+
+    if(entries.length){
+      const cur = entries[0];
+      rbName.textContent = cur.mitarbeiter || '—';
+      rbMail.textContent = cur.mail || '—';
+
+      const m = (cur.mail||'').toLowerCase();
+      const staffHit = staffByMail.get(m);
+      rbTel.textContent = staffHit?.tel || '—';
+
+      rbZeit.textContent = `${fmtDate(cur.startD)} – ${fmtDate(cur.endeD)}`;
+      setCardActive(rbCard, true);
+      rbHint.textContent = `Quelle: rufbereitschaft_plan.json (${cur.gruppe})`;
+    } else {
+      rbName.textContent='—'; rbMail.textContent='—'; rbTel.textContent='—'; rbZeit.textContent='—';
+      setCardActive(rbCard, false);
+      rbHint.textContent = 'Keine aktuelle Rufbereitschaft gefunden (Datum/Gruppe prüfen).';
+    }
+  }catch(err){
+    console.warn(err);
+    rbHint.textContent = 'Fehler: assets/rufbereitschaft_plan.json konnte nicht geladen werden.';
+  }
+
+  // Stations + Map laden
+  try{ await loadStations(); }catch(e){ console.warn(e); }
+  try{ await loadMap(); }catch(e){
+    console.warn(e);
+    mapStatus.textContent = 'map.svg: Fehler beim Laden';
+    mapBox.classList.remove('loading');
+    mapBox.innerHTML = '<div style="padding:12px;font-weight:900;color:#b00020;">Fehler: assets/map.svg konnte nicht geladen werden.</div>';
+  }
+
+  // Init Entscheidungen
+  setManualMode(false);
+  applyAutoDecisions();
+
+  // Fotos preview
+  const photoInput = document.getElementById('photoInput');
+  const photoPreview = document.getElementById('photoPreview');
+  function renderPhotos(files){
+    photoPreview.innerHTML='';
+    const list = Array.from(files||[]);
+    list.slice(0, 12).forEach(f=>{
+      const box = document.createElement('div');
+      box.className='photo-thumb';
+      const img = document.createElement('img');
+      box.appendChild(img);
+      photoPreview.appendChild(box);
+      const url = URL.createObjectURL(f);
+      img.src = url;
+      img.onload = ()=> URL.revokeObjectURL(url);
+    });
+  }
+  photoInput.addEventListener('change', ()=> renderPhotos(photoInput.files));
+
+  // Export JSON
+  function collectFormData(){
+    const massSel = massWrap.querySelector('.pillar.active')?.getAttribute('data-mass') || '';
+    const flags = {};
+    ['EL','RB','FS','EK'].forEach(k=>{
+      const p = flagsWrap.querySelector(`.pillar[data-flag="${k}"]`);
+      flags[k] = !!(p && p.classList.contains('active'));
+    });
+
+    const data = {
+      meta: { erzeugtAm: new Date().toISOString(), schema: 'mev-meldeformular-v1' },
+      alarmierung: {
+        meldungDatum: meldD.value,
+        meldungUhrzeit: meldT.value,
+        bemerkungen: (document.getElementById('alarm_bemerkungen').value||'').trim()
+      },
+      ereignis: {
+        ev_key: (evKeyEl.value||'').trim(),
+        var_key: (varKeyEl.value||'').trim(),
+        zugfahrzeug: { modus: zugMode, nummer: (document.getElementById('zugfahrzeugInput').value||'').trim() },
+        bemerkungen: (document.getElementById('ereignis_bemerkungen').value||'').trim()
+      },
+      entscheidungen: {
+        evu: evuSelect.value || (TREE?.default?.evu || 'MEV'),
+        fuehrend: (fuehrendView.textContent||'').trim(),
+        flags,
+        override: !!overrideToggle.checked,
+        rufbereitschaft: { name: rbName.textContent, mail: rbMail.textContent, tel: rbTel.textContent, zeitraum: rbZeit.textContent },
+        massnahme_status: massSel,
+        massnahmen_text: (document.getElementById('massnahmen_text').value||'').trim(),
+        bemerkungen: (document.getElementById('entscheid_bemerkungen').value||'').trim()
+      }
+    };
+    return data;
+  }
+
+  function downloadJson(obj){
+    const blob = new Blob([JSON.stringify(obj, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    const ts = new Date();
+    const name = `meldung_${ts.getFullYear()}${pad(ts.getMonth()+1)}${pad(ts.getDate())}_${pad(ts.getHours())}${pad(ts.getMinutes())}.json`;
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+
+  document.getElementById('btnExport').addEventListener('click', ()=>{
+    if(!meldD.checkValidity() || !meldT.checkValidity()){
+      alert('Bitte Meldung Datum und Meldung Uhrzeit ausfüllen.');
+      return;
+    }
+    downloadJson(collectFormData());
+  });
+
+  document.getElementById('btnReset').addEventListener('click', ()=>{
+    if(!confirm('Formular wirklich zurücksetzen?')) return;
+    location.reload();
+  });
+
+})();
+</script>
+</body>
+</html>
+``
