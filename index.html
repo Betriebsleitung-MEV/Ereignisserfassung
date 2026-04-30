@@ -120,7 +120,8 @@
   <div class="row-2">
     <div id="melderInternCard" class="card is-inactive">
       <div style="font-weight:900;margin-bottom:8px;">Melder intern</div>
-      <select id="melderInternSelect"><option value="">Bitte wählen</option></select>
+      <button type="button" class="btn-secondary" id="btnPickMelderIntern">Mitarbeiter suchen (SUFU)</button>
+<select id="melderInternSelect" class="is-hidden"><option value="">Bitte wählen</option></select>
       <div class="pillars" style="margin-top:12px;">
         <div class="pillar locked" style="cursor:default;"><div class="p-label">Typ</div><div class="p-value" id="melder_typ">—</div></div>
         <div class="pillar locked is-hidden" id="melder_vor_P" style="cursor:default;"><div class="p-label">Vorname</div><div class="p-value" id="melder_vor">—</div></div>
@@ -162,7 +163,8 @@
 
   <div id="erfasserCard" class="card is-inactive">
     <div style="font-weight:900;margin-bottom:8px;">Erfasser auswählen</div>
-    <select id="erfasserSelect"><option value="">Bitte wählen</option></select>
+    <<button type="button" class="btn-secondary" id="btnPickErfasser">Mitarbeiter suchen (SUFU)</button>
+<select id="erfasserSelect" class="is-hidden"><option value="">Bitte wählen</option></select>>
     <div class="pillars" style="margin-top:12px;">
       <div class="pillar locked" style="cursor:default;"><div class="p-label">Typ</div><div class="p-value" id="erfasser_typ">—</div></div>
       <div class="pillar locked is-hidden" id="erfasser_vor_P" style="cursor:default;"><div class="p-label">Vorname</div><div class="p-value" id="erfasser_vor">—</div></div>
@@ -458,12 +460,100 @@
       const val = p.mev_id || label;
       return `<option value="${escapeHtml(val)}" data-vorname="${escapeHtml(p.vorname)}" data-nachname="${escapeHtml(p.nachname)}" data-mail="${escapeHtml(p.mail)}" data-tel="${escapeHtml(p.tel)}">${escapeHtml(label)}</option>`;
     })).join('');
+    // ===== Mitarbeitende SUFU =====
+  function openStaffPicker(title, cb){
+    const ov = document.createElement('div');
+    ov.className = 'overlay';
+    ov.addEventListener('click', (e)=>{ if(e.target===ov) ov.remove(); });
+
+    const box = document.createElement('div');
+    box.className = 'overlay-box';
+    ov.appendChild(box);
+
+    box.innerHTML = `
+      <div style="font-weight:900;margin-bottom:10px;">${escapeHtml(title)}</div>
+      <input class="sufu-input" placeholder="Suche nach Name, Mail, Tel, ID, Abteilung …">
+      <div class="sufu-list"></div>
+      <div style="display:flex;gap:10px;margin-top:10px;justify-content:flex-end;">
+        <button type="button" class="btn-secondary">Schliessen</button>
+      </div>
+    `;
+
+    const input = box.querySelector('.sufu-input');
+    const list = box.querySelector('.sufu-list');
+    box.querySelector('.btn-secondary').onclick = ()=> ov.remove();
+
+    function render(q){
+      q = (q||'').trim().toLowerCase();
+      list.innerHTML = '';
+
+      let filtered = staffFlat;
+      if(q){
+        filtered = staffFlat.filter(p=>{
+          const hay = `${p.nachname} ${p.vorname} ${p.mail} ${p.tel} ${p.mev_id} ${p.dept}`.toLowerCase();
+          return hay.includes(q);
+        });
+      }
+
+      filtered.slice(0, 400).forEach(p=>{
+        const item = document.createElement('div');
+        item.className = 'sufu-item';
+        item.innerHTML = `
+          <div style="font-weight:900;">${escapeHtml(p.nachname)} ${escapeHtml(p.vorname)} <span class="sufu-small">(${escapeHtml(p.dept)})</span></div>
+          <div class="sufu-small">${escapeHtml(p.mail||'')} ${p.tel ? ('· '+escapeHtml(p.tel)) : ''} ${p.mev_id ? ('· '+escapeHtml(p.mev_id)) : ''}</div>
+        `;
+        item.onclick = ()=>{ ov.remove(); cb(p); };
+        list.appendChild(item);
+      });
+
+      if(!list.children.length){
+        const item = document.createElement('div');
+        item.className = 'sufu-item';
+        item.innerHTML = '<div style="font-weight:900;">Kein Treffer</div>';
+        list.appendChild(item);
+      }
+    }
+
+    input.addEventListener('input', ()=> render(input.value));
+    render('');
+    document.body.appendChild(ov);
+    input.focus();
+  }
+
+  function setSelectToStaff(selectEl, p){
+    if(!selectEl || !p) return;
+    const val = p.mev_id || `${p.nachname} ${p.vorname} (${p.dept})`;
+    selectEl.value = val;
+    selectEl.dispatchEvent(new Event('change', {bubbles:true}));
+  }
 
   // Melder intern/extern
   const melderInternCard = document.getElementById('melderInternCard');
   const melderExternCard = document.getElementById('melderExternCard');
   const melderInternSelect = document.getElementById('melderInternSelect');
   melderInternSelect.innerHTML = optionsHTML;
+  // Melder intern SUFU
+  document.getElementById('btnPickMelderIntern')?.addEventListener('click', ()=>{
+    openStaffPicker('Melder intern wählen', (p)=> setSelectToStaff(melderInternSelect, p));
+  });
+
+  // Erfasser SUFU
+  document.getElementById('btnPickErfasser')?.addEventListener('click', ()=>{
+    openStaffPicker('Erfasser wählen', (p)=> setSelectToStaff(erfasserSelect, p));
+  });
+
+  // Involvierte Intern SUFU (pro Person)
+  document.addEventListener('click', (e)=>{
+    const btn = e.target.closest('.inv-pick-intern');
+    if(!btn) return;
+    const person = btn.closest('.inv-person');
+    if(!person) return;
+    const sel = person.querySelector('.inv-intern-select');
+    if(!sel) return;
+
+    openStaffPicker('Mitarbeiter wählen', (p)=> setSelectToStaff(sel, p));
+  });
+``
 
   const mTyp = document.getElementById('melder_typ');
   const mVorP = document.getElementById('melder_vor_P');
@@ -633,7 +723,8 @@
       <div class="row-2">
         <div class="card is-inactive inv-intern">
           <div style="font-weight:900;margin-bottom:8px;">Intern</div>
-          <select class="inv-intern-select">${optionsHTML}</select>
+          <button type="button" class="btn-secondary inv-pick-intern">Intern suchen (SUFU)</button>
+          <select class="inv-intern-select is-hidden">${optionsHTML}</select>
           <div class="pillars" style="margin-top:12px;grid-template-columns:repeat(3,1fr);">
             <div class="pillar small locked" style="cursor:default;"><div class="p-label">Typ</div><div class="p-value inv_typ">—</div></div>
             <div class="pillar small locked" style="cursor:default;"><div class="p-label">Rolle</div><div class="p-value">${roleLabel(role)}</div></div>
@@ -645,41 +736,103 @@
         </div>
 
         <div class="card is-inactive inv-extern">
-          <div style="font-weight:900;margin-bottom:8px;">Extern</div>
-          <input class="inv_firma" type="text" placeholder="Unternehmen (optional)">
-          <div class="row-2" style="margin-top:10px;">
-            <input class="inv_vor_in" type="text" placeholder="Vorname (optional)">
-            <input class="inv_nach_in" type="text" placeholder="Nachname (optional)">
-          </div>
-          <div class="row-2" style="margin-top:10px;">
-            <input class="inv_mail_in" type="email" placeholder="Mail (optional)">
-            <input class="inv_tel_in" type="tel" placeholder="Telefon (optional)">
-          </div>
-          <div class="hint">Es wird nur angezeigt, was erfasst wurde.</div>
-        </div>
-      </div>
+  <div style="font-weight:900;margin-bottom:8px;">Extern</div>
+  <input class="inv_firma" type="text" placeholder="Unternehmen (optional)">
+  <div class="row-2" style="margin-top:10px;">
+    <input class="inv_vor_in" type="text" placeholder="Vorname (optional)">
+    <input class="inv_nach_in" type="text" placeholder="Nachname (optional)">
+  </div>
+  <div class="row-2" style="margin-top:10px;">
+    <input class="inv_mail_in" type="email" placeholder="Mail (optional)">
+    <input class="inv_tel_in" type="tel" placeholder="Telefon (optional)">
+  </div>
+
+  <!-- NEU: Anzeige wie bei Melder extern -->
+  <div class="pillars" style="margin-top:12px;grid-template-columns:repeat(3,1fr);">
+    <div class="pillar small locked" style="cursor:default;"><div class="p-label">Typ</div><div class="p-value inv_typ2">—</div></div>
+    <div class="pillar small locked" style="cursor:default;"><div class="p-label">Rolle</div><div class="p-value">${roleLabel(role)}</div></div>
+
+    <div class="pillar small locked is-hidden inv_firmaP2" style="cursor:default;"><div class="p-label">Unternehmen</div><div class="p-value inv_firmaV2">—</div></div>
+    <div class="pillar small locked is-hidden inv_vorP2" style="cursor:default;"><div class="p-label">Vorname</div><div class="p-value inv_vor2">—</div></div>
+    <div class="pillar small locked is-hidden inv_nachP2" style="cursor:default;"><div class="p-label">Nachname</div><div class="p-value inv_nach2">—</div></div>
+    <div class="pillar small locked is-hidden inv_mailP2" style="cursor:default;"><div class="p-label">Mail</div><div class="p-value inv_mail2">—</div></div>
+    <div class="pillar small locked is-hidden inv_telP2" style="cursor:default;"><div class="p-label">Telefon</div><div class="p-value inv_tel2">—</div></div>
+  </div>
+
+  <div class="hint">Es wird nur angezeigt, was erfasst wurde.</div>
+</div>
+
     `;
     list.appendChild(el);
     setLimitUI();
   }
 
-  // Intern/Extern Umschaltung pro Person
+// Intern/Extern Umschaltung pro Person (inkl. Anzeige wie bei Melder extern)
   document.addEventListener('change', (e)=>{
     const sel = e.target.closest('.inv-intern-select');
     if(!sel) return;
     const person = sel.closest('.inv-person');
     if(!person) return;
+
     const internCard = person.querySelector('.inv-intern');
     const externCard = person.querySelector('.inv-extern');
+
+    // Helfer: Intern-Pillars setzen
+    const setInternPillars = (opt)=>{
+      const v = opt?.dataset?.vorname || '';
+      const n = opt?.dataset?.nachname || '';
+      const mail = opt?.dataset?.mail || '';
+      const tel = opt?.dataset?.tel || '';
+
+      person.querySelector('.inv_typ').textContent = 'Intern';
+      person.querySelector('.inv_vor').textContent = v || '—';
+      person.querySelector('.inv_nach').textContent = n || '—';
+      person.querySelector('.inv_mail').textContent = mail || '—';
+      person.querySelector('.inv_tel').textContent = tel || '—';
+
+      showIf(person.querySelector('.inv_vorP'), v);
+      showIf(person.querySelector('.inv_nachP'), n);
+      showIf(person.querySelector('.inv_mailP'), mail);
+      showIf(person.querySelector('.inv_telP'), tel);
+    };
+
+    // Helfer: Extern-Pillars zurücksetzen
+    const resetExternPillars = ()=>{
+      const t2 = person.querySelector('.inv_typ2'); if(t2) t2.textContent = '—';
+      const fv = person.querySelector('.inv_firmaV2'); if(fv) fv.textContent = '—';
+      const v2 = person.querySelector('.inv_vor2'); if(v2) v2.textContent = '—';
+      const n2 = person.querySelector('.inv_nach2'); if(n2) n2.textContent = '—';
+      const m2 = person.querySelector('.inv_mail2'); if(m2) m2.textContent = '—';
+      const te2 = person.querySelector('.inv_tel2'); if(te2) te2.textContent = '—';
+      ['.inv_firmaP2','.inv_vorP2','.inv_nachP2','.inv_mailP2','.inv_telP2'].forEach(s=>{
+        const el = person.querySelector(s); if(el) el.classList.add('is-hidden');
+      });
+    };
 
     if(sel.value){
       setCardActive(internCard,true);
       setCardActive(externCard,false);
+
+      // Extern Inputs leeren (wie bei Melder extern: wenn intern gewählt, extern leer)
+      ['.inv_firma','.inv_vor_in','.inv_nach_in','.inv_mail_in','.inv_tel_in'].forEach(s=>{
+        const i = person.querySelector(s);
+        if(i) i.value = '';
+      });
+      resetExternPillars();
+
+      // Intern-Pillars befüllen
+      const opt = sel.selectedOptions?.[0];
+      setInternPillars(opt);
     } else {
       setCardActive(internCard,false);
+      person.querySelector('.inv_typ').textContent = '—';
+      ['.inv_vorP','.inv_nachP','.inv_mailP','.inv_telP'].forEach(s=>{
+        const el = person.querySelector(s); if(el) el.classList.add('is-hidden');
+      });
     }
   });
 
+  // Extern-Eingabe pro Person (wie Melder extern)
   document.addEventListener('input', (e)=>{
     const person = e.target.closest('.inv-person');
     if(!person) return;
@@ -689,21 +842,55 @@
     const externCard = person.querySelector('.inv-extern');
 
     const firma = (person.querySelector('.inv_firma')?.value||'').trim();
-    const vor = (person.querySelector('.inv_vor_in')?.value||'').trim();
-    const nach = (person.querySelector('.inv_nach_in')?.value||'').trim();
-    const mail = (person.querySelector('.inv_mail_in')?.value||'').trim();
-    const tel = (person.querySelector('.inv_tel_in')?.value||'').trim();
+    const vor   = (person.querySelector('.inv_vor_in')?.value||'').trim();
+    const nach  = (person.querySelector('.inv_nach_in')?.value||'').trim();
+    const mail  = (person.querySelector('.inv_mail_in')?.value||'').trim();
+    const tel   = (person.querySelector('.inv_tel_in')?.value||'').trim();
 
     const any = !!(firma || vor || nach || mail || tel);
+
+    // Helfer: Extern-Pillars setzen
+    const setExternPillars = ()=>{
+      const t2 = person.querySelector('.inv_typ2'); if(t2) t2.textContent = 'Extern';
+
+      const fv = person.querySelector('.inv_firmaV2'); if(fv) fv.textContent = firma || '—';
+      const v2 = person.querySelector('.inv_vor2'); if(v2) v2.textContent = vor || '—';
+      const n2 = person.querySelector('.inv_nach2'); if(n2) n2.textContent = nach || '—';
+      const m2 = person.querySelector('.inv_mail2'); if(m2) m2.textContent = mail || '—';
+      const te2= person.querySelector('.inv_tel2');  if(te2) te2.textContent = tel || '—';
+
+      showIf(person.querySelector('.inv_firmaP2'), firma);
+      showIf(person.querySelector('.inv_vorP2'), vor);
+      showIf(person.querySelector('.inv_nachP2'), nach);
+      showIf(person.querySelector('.inv_mailP2'), mail);
+      showIf(person.querySelector('.inv_telP2'), tel);
+    };
+
     if(any){
       setCardActive(externCard,true);
       setCardActive(internCard,false);
+
+      // Intern Select leeren + Intern-Pillars leeren
       const sel = person.querySelector('.inv-intern-select');
-      if(sel) sel.value='';
+      if(sel) sel.value = '';
+      const t1 = person.querySelector('.inv_typ'); if(t1) t1.textContent = '—';
+      ['.inv_vorP','.inv_nachP','.inv_mailP','.inv_telP'].forEach(s=>{
+        const el = person.querySelector(s); if(el) el.classList.add('is-hidden');
+      });
+
+      // Extern-Pillars befüllen
+      setExternPillars();
     } else {
       setCardActive(externCard,false);
+
+      // Extern-Pillars zurücksetzen
+      const t2 = person.querySelector('.inv_typ2'); if(t2) t2.textContent = '—';
+      ['.inv_firmaP2','.inv_vorP2','.inv_nachP2','.inv_mailP2','.inv_telP2'].forEach(s=>{
+        const el = person.querySelector(s); if(el) el.classList.add('is-hidden');
+      });
     }
   });
+``
 
   setLimitUI();
 
