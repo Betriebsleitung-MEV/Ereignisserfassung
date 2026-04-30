@@ -295,12 +295,13 @@
   <div class="subhead">EVU / Führend</div>
   <div class="row-2">
     <div class="field">
-      <div style="font-weight:900;margin-bottom:6px;">EVU (für Führend-Logik)</div>
+      <div style="font-weight:900;margin-bottom:6px;">EVU
+      </div>
       <select id="evu_select"><option value="">Lädt EVU …</option></select>
       <div class="hint">EVU kommt aus assets/entscheidungsbaum.json</div>
     </div>
     <div class="field">
-      <div style="font-weight:900;margin-bottom:6px;">Führend (Anzeige)</div>
+      <div style="font-weight:900;margin-bottom:6px;">Verantwortlich</div>
       <div id="fuehrend_view" class="sysbox">—</div>
       <div class="hint" id="fuehrend_hint">Wird nach Auswahl von Ereignisart/Variante automatisch gesetzt.</div>
     </div>
@@ -339,17 +340,21 @@
     <div class="hint" id="rb_hint">Wird aus assets/rufbereitschaft_plan.json ermittelt.</div>
   </div>
 
-  <div class="subhead">Massnahmen</div>
-  <div id="massnahme_status" class="pillars" style="grid-template-columns:repeat(3,1fr);">
-    <div class="pillar" data-mass="erledigt">Massnahme erledigt</div>
-    <div class="pillar" data-mass="offen">Massnahme offen</div>
-    <div class="pillar" data-mass="nicht">Massnahme nicht erforderlich</div>
+<div class="subhead">Weiteres Vorgehen (Einsatzleitung)</div>
+
+  <div class="field">
+    <div style="font-weight:900;margin-bottom:6px;">Empfohlene Schritte aus Entscheidungsbaum</div>
+    <div id="vorgehenPillars" class="pillars" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));"></div>
+    <div class="hint" id="vorgehenHint">
+      Wird aus entscheidungsbaum.json berechnet (massnahmen_global + massnahmen_evu).
+    </div>
   </div>
 
   <div class="field">
-    <div style="font-weight:900;margin-bottom:6px;">Massnahmen / Auftrag</div>
-    <textarea id="massnahmen_text" rows="4" placeholder="Massnahmen (optional)"></textarea>
+    <div style="font-weight:900;margin-bottom:6px;">Vorgehen / Auftrag</div>
+    <textarea id="massnahmen_text" rows="4" placeholder="Bemerkungen zum Vorgehen (optional)"></textarea>
     <div class="hint">Freitext</div>
+  </div>
   </div>
 
   <div class="field" style="margin-top:12px;">
@@ -951,8 +956,68 @@
   const rbZeit = document.getElementById('rb_zeit');
   const rbHint = document.getElementById('rb_hint');
 
-  const massWrap = document.getElementById('massnahme_status');
+  const vorgehenWrap = document.getElementById('vorgehenPillars');
+  const vorgehenHint = document.getElementById('vorgehenHint');
+  let massnahmenEmpfohlen = {}; // wird aus massnahmen_global + massnahmen_evu berechnet
+function computeMassnahmen(variant, evuId){
+  if(!variant) return {};
 
+  // Basis: global
+  const base = {...(variant.massnahmen_global || {})};
+
+  // EVU-spezifisch add/remove
+  const evuBlock = (variant.massnahmen_evu || {})[evuId] || null;
+  if(evuBlock){
+    const add = evuBlock.add || {};
+    const remove = evuBlock.remove || {};
+
+    for(const k of Object.keys(remove)){
+      delete base[k];
+    }
+    for(const k of Object.keys(add)){
+      base[k] = true;
+    }
+  }
+  return base;
+}
+
+function renderVorgehen(variant){
+  if(!vorgehenWrap) return;
+
+  if(!variant){
+    massnahmenEmpfohlen = {};
+    vorgehenWrap.innerHTML = '<div class="hint">—</div>';
+    if(vorgehenHint) vorgehenHint.textContent = 'Wähle Ereignisart und Variante.';
+    return;
+  }
+
+  const evu = getSelectedEvu();
+  massnahmenEmpfohlen = computeMassnahmen(variant, evu.id);
+
+  const legend = (TREE?.meta?.kuerzel_legende) || {};
+  const keys = Object.keys(massnahmenEmpfohlen).filter(k => massnahmenEmpfohlen[k] === true);
+
+  if(keys.length === 0){
+    vorgehenWrap.innerHTML = '<div class="hint">Keine zusätzlichen Schritte definiert.</div>';
+    if(vorgehenHint) vorgehenHint.textContent = `EVU: ${evu.id}`;
+    return;
+  }
+
+  vorgehenWrap.innerHTML = keys.map(k => {
+    const meta = legend[k] || {label:k, beschreibung:''};
+    const label = meta.label || k;
+    const desc = meta.beschreibung || '';
+    return `
+      <div class="pillar locked" style="cursor:default;">
+        <div class="p-label">${k}</div>
+        <div class="p-value">${label}</div>
+        ${desc ? `<div class="hint">${desc}</div>` : ``}
+      </div>
+    `;
+  }).join('');
+
+  if(vorgehenHint) vorgehenHint.textContent = `EVU: ${evu.id} · Quelle: massnahmen_global + massnahmen_evu`;
+}
   let TREE = null;
   let events = [];
   let selectedEvent = null;
