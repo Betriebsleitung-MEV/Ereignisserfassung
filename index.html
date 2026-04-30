@@ -85,10 +85,7 @@
     display:none;
     z-index:10;
     box-sizing:border-box;
-    .map-ring.start{border-color:#e53935;}  /* Start = rot */
-    .map-ring.ziel{border-color:#1e88e5;}   /* Ziel  = blau */
    }
-    
 
 
     /* Fotos */
@@ -922,73 +919,31 @@
   const mapBox = document.getElementById('mapBox');
   const mapStatus = document.getElementById('mapStatus');
 
-  function parseNum(val){
-  if(val==null) return null;
-  const s = String(val).trim();
-  if(!s) return null;
-  const m = s.match(/^[0-9.+-]+/);
-  return m ? Number(m[0]) : null;
-}
-
-function ensureViewBox(svg){
-  if(!svg) return;
-  const vb = (svg.getAttribute('viewBox')||'').trim();
-  if(vb) return;
-
-  const w = parseNum(svg.getAttribute('width'));
-  const h = parseNum(svg.getAttribute('height'));
-
-  if(Number.isFinite(w) && Number.isFinite(h) && w>0 && h>0){
-    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
-  } else {
-    try{
-      const bb = svg.getBBox();
-      svg.setAttribute('viewBox', `${bb.x} ${bb.y} ${bb.width} ${bb.height}`);
-    }catch(e){
-      // viewBox bleibt leer, falls SVG kein BBox liefert
-    }
-  }
-  svg.setAttribute('preserveAspectRatio','xMidYMid meet');
-}
-
   async function loadStations(){
     const res = await fetch(URL_STATIONS);
     STATIONS = await res.json();
   }
   async function loadMap(){
-  mapBox.classList.add('loading');
-  const res = await fetch(URL_MAP);
-  const svgText = await res.text();
-  mapBox.innerHTML = svgText;
-  mapSvg = mapBox.querySelector('svg');
-  if(!mapSvg) throw new Error('map.svg enthält kein <svg>');
-
-  mapSvg.style.width = '100%';
-  mapSvg.style.height = '100%';
-  mapSvg.style.pointerEvents = 'none';
-
-  // viewBox sicherstellen (wichtig für Zoom + Ring)
-  ensureViewBox(mapSvg);
-  mapDefaultViewBox = mapSvg.getAttribute('viewBox') || mapDefaultViewBox;
-
-  // 2 Ringe sicherstellen: Start (rot) + Ziel (blau)
-  let rStart = mapBox.querySelector('#mapRingStart');
-  if(!rStart){
-    rStart = document.createElement('div');
-    rStart.id = 'mapRingStart';
-    rStart.className = 'map-ring start';
-    mapBox.appendChild(rStart);
-  }
-  let rZiel = mapBox.querySelector('#mapRingZiel');
-  if(!rZiel){
-    rZiel = document.createElement('div');
-    rZiel.id = 'mapRingZiel';
-    rZiel.className = 'map-ring ziel';
-    mapBox.appendChild(rZiel);
-  }
-
-  mapBox.classList.remove('loading');
-  mapStatus.textContent = 'map.svg: geladen';
+    mapBox.classList.add('loading');
+    const res = await fetch(URL_MAP);
+    const svgText = await res.text();
+    mapBox.innerHTML = svgText;
+    mapSvg = mapBox.querySelector('svg');
+    // Ring overlay sicherstellen
+let ring = mapBox.querySelector('#mapRing');
+if(!ring){
+  ring = document.createElement('div');
+  ring.id = 'mapRing';
+  ring.className = 'map-ring';
+  mapBox.appendChild(ring);
+ }
+    if(!mapSvg) throw new Error('map.svg enthält kein <svg>');
+    mapSvg.style.width = '100%';
+    mapSvg.style.height = '100%';
+    mapSvg.style.pointerEvents = 'none';
+    mapDefaultViewBox = mapSvg.getAttribute('viewBox');
+    mapBox.classList.remove('loading');
+    mapStatus.textContent = 'map.svg: geladen';
   }
 
   function findStationElement(svg, station){
@@ -1031,7 +986,7 @@ function ensureViewBox(svg){
 function resetMapView(){
   if(mapSvg && mapDefaultViewBox) mapSvg.setAttribute('viewBox', mapDefaultViewBox);
   if(mapSvg) setHighlight(mapSvg, null);
-  hideAllRings();
+  hideRing();
 }
 
 function getViewBoxObj(svg){
@@ -1053,41 +1008,20 @@ function svgToBox(svg, x, y){
   return { x: ox + (x - vb.x) * s, y: oy + (y - vb.y) * s };
 }
 
-fdocument.getElementById('btnPickStart').onclick = ()=>{
-  openStationPicker('Start wählen', (s)=>{
-    ortSelection.start = s;
-    setViewText('viewStart', s);
+function showRingAt(svg, x, y){
+  const ring = mapBox.querySelector('#mapRing');
+  const pt = svgToBox(svg, x, y);
+  if(!ring || !pt) return;
+  const r = 11; // halb von 22px
+  ring.style.left = (pt.x - r) + 'px';
+  ring.style.top  = (pt.y - r) + 'px';
+  ring.style.display = 'block';
+}
 
-    if(mapSvg){
-      // Start-Ring (rot)
-      const elS = findStationElement(mapSvg, s);
-      if(elS){
-        try{
-          const bb = elS.getBBox();
-          showRingAt('mapRingStart', mapSvg, bb.x + bb.width/2, bb.y + bb.height/2);
-        }catch(e){}
-      }
-
-      if(ortSelection.ziel){
-        // Zoom auf beide
-        zoomToTwoStations(mapSvg, ortSelection.start, ortSelection.ziel, 90);
-
-        // Ziel-Ring (blau) nachziehen
-        const elZ = findStationElement(mapSvg, ortSelection.ziel);
-        if(elZ){
-          try{
-            const bb = elZ.getBBox();
-            showRingAt('mapRingZiel', mapSvg, bb.x + bb.width/2, bb.y + bb.height/2);
-          }catch(e){}
-        }
-      } else {
-        // optional: wenn nur Start, leicht zoomen
-        zoomToPosition(mapSvg, s.position, 70);
-        hideRing('mapRingZiel');
-      }
-    }
-  });
-  };
+function hideRing(){
+  const ring = mapBox.querySelector('#mapRing');
+  if(ring) ring.style.display = 'none';
+}
   document.getElementById('btnMapReset').addEventListener('click', resetMapView);
 
   function openStationPicker(title, cb){
@@ -1219,75 +1153,19 @@ fdocument.getElementById('btnPickStart').onclick = ()=>{
   };
 
   // Strecke
- document.getElementById('btnPickStart').onclick = ()=>{
-  openStationPicker('Start wählen', (s)=>{
-    ortSelection.start = s;
-    setViewText('viewStart', s);
-
-    if(mapSvg){
-      // Start-Ring (rot)
-      const elS = findStationElement(mapSvg, s);
-      if(elS){
-        try{
-          const bb = elS.getBBox();
-          showRingAt('mapRingStart', mapSvg, bb.x + bb.width/2, bb.y + bb.height/2);
-        }catch(e){}
-      }
-
-      if(ortSelection.ziel){
-        // Zoom auf beide
-        zoomToTwoStations(mapSvg, ortSelection.start, ortSelection.ziel, 90);
-
-        // Ziel-Ring (blau) nachziehen
-        const elZ = findStationElement(mapSvg, ortSelection.ziel);
-        if(elZ){
-          try{
-            const bb = elZ.getBBox();
-            showRingAt('mapRingZiel', mapSvg, bb.x + bb.width/2, bb.y + bb.height/2);
-          }catch(e){}
-        }
-      } else {
-        // optional: wenn nur Start, leicht zoomen
-        zoomToPosition(mapSvg, s.position, 70);
-        hideRing('mapRingZiel');
-      }
-    }
-  });
+  document.getElementById('btnPickStart').onclick = ()=>{
+    openStationPicker('Start wählen', (s)=>{
+      ortSelection.start = s;
+      setViewText('viewStart', s);
+      if(mapSvg && ortSelection.ziel) zoomToTwoStations(mapSvg, ortSelection.start, ortSelection.ziel, 90);
+    });
   };
   document.getElementById('btnPickZiel').onclick = ()=>{
-  openStationPicker('Ziel wählen', (s)=>{
-    ortSelection.ziel = s;
-    setViewText('viewZiel', s);
-
-    if(mapSvg){
-      // Ziel-Ring (blau)
-      const elZ = findStationElement(mapSvg, s);
-      if(elZ){
-        try{
-          const bb = elZ.getBBox();
-          showRingAt('mapRingZiel', mapSvg, bb.x + bb.width/2, bb.y + bb.height/2);
-        }catch(e){}
-      }
-
-      if(ortSelection.start){
-        // Zoom auf beide
-        zoomToTwoStations(mapSvg, ortSelection.start, ortSelection.ziel, 90);
-
-        // Start-Ring (rot) nachziehen
-        const elS = findStationElement(mapSvg, ortSelection.start);
-        if(elS){
-          try{
-            const bb = elS.getBBox();
-            showRingAt('mapRingStart', mapSvg, bb.x + bb.width/2, bb.y + bb.height/2);
-          }catch(e){}
-        }
-      } else {
-        // optional: wenn nur Ziel, leicht zoomen
-        zoomToPosition(mapSvg, s.position, 70);
-        hideRing('mapRingStart');
-      }
-    }
-  });
+    openStationPicker('Ziel wählen', (s)=>{
+      ortSelection.ziel = s;
+      setViewText('viewZiel', s);
+      if(mapSvg && ortSelection.start) zoomToTwoStations(mapSvg, ortSelection.start, ortSelection.ziel, 90);
+    });
   };
 
   // Anschluss
