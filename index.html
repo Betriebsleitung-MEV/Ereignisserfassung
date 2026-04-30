@@ -1122,27 +1122,28 @@ function hideRing(){
 
   // Bahnhof
   document.getElementById('btnPickBahnhof').onclick = ()=>{
-    openStationPicker('Station (Bahnhof) wählen', (s)=>{
-     if(mapSvg){
-  const el = findStationElement(mapSvg, s);
-  setHighlight(mapSvg, el);
+  openStationPicker('Station (Bahnhof) wählen', (s)=>{
+    ortSelection.bahnhof = s;
+    setViewText('viewBahnhof', s);
 
-  if(el){
-    try{
-      const bb = el.getBBox();
-      zoomToPosition(mapSvg, {x:bb.x, y:bb.y, width:bb.width, height:bb.height}, 180);
-      showRingAt(mapSvg, bb.x + bb.width/2, bb.y + bb.height/2);
-    }catch(e){
-      zoomToPosition(mapSvg, s.position, 70);
-      hideRing();
-    }
-  } else {
-    hideRing();
-  }
-}
-        setHighlight(mapSvg, findStationElement(mapSvg, s));
+    if(mapSvg){
+      const el = findStationElement(mapSvg, s);
+      setHighlight(mapSvg, el);
+
+      if(el){
+        try{
+          const bb = el.getBBox();
+          zoomToPosition(mapSvg, {x:bb.x, y:bb.y, width:bb.width, height:bb.height}, 180);
+          showRingAt(mapSvg, bb.x + bb.width/2, bb.y + bb.height/2);
+        }catch(e){
+          zoomToPosition(mapSvg, s.position, 70);
+          hideRing();
+        }
+      } else {
+        hideRing();
       }
-    });
+    }
+  });
   };
   document.getElementById('btnPickZugziel').onclick = ()=>{
     openStationPicker('Zugziel wählen', (s)=>{
