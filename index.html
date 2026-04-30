@@ -959,7 +959,7 @@
   const vorgehenWrap = document.getElementById('vorgehenPillars');
   const vorgehenHint = document.getElementById('vorgehenHint');
   let massnahmenEmpfohlen = {}; // wird aus massnahmen_global + massnahmen_evu berechnet
-function computeMassnahmen(variant, evuId){
+  function computeMassnahmen(variant, evuId){
   if(!variant) return {};
 
   // Basis: global
@@ -1039,12 +1039,6 @@ function renderVorgehen(variant){
     const p = e.target.closest('.pillar');
     if(!p) return;
     p.classList.toggle('active');
-  });
-
-  massWrap.addEventListener('click', (e)=>{
-    const p = e.target.closest('.pillar');
-    if(!p) return;
-    setActivePillar(massWrap, 'data-mass', p.getAttribute('data-mass'));
   });
 
   function getSelectedEvu(){
@@ -1352,7 +1346,7 @@ function renderVorgehen(variant){
   });
 
   // --- Massnahme Status ---
-  const massSel = massWrap.querySelector('.pillar.active')?.getAttribute('data-mass') || '';
+  const massnahmen_empfohlen = massnahmenEmpfohlen;
 
   // --- Fotos (nur Metadaten, keine Bytes) ---
   const fotos = Array.from(document.getElementById('photoInput')?.files || []).map(f => ({
@@ -1406,7 +1400,7 @@ function renderVorgehen(variant){
         tel: rbTel.textContent,
         zeitraum: rbZeit.textContent
       },
-      massnahme_status: massSel,
+      massnahmen_empfohlen: massnahmen_empfohlen,
       massnahmen_text: (document.getElementById('massnahmen_text').value||'').trim(),
       bemerkungen: (document.getElementById('entscheid_bemerkungen').value||'').trim()
     },
