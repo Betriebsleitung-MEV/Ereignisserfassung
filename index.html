@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meldeformular – GitHub (Test12-Style)</title>
+  <title>Meldeformular</title>
   <style>
     /* ===== Basis (Test12-Style, desktop-first) ===== */
     body{font-family:Arial,sans-serif;background:#f5f5f5;padding:24px}
@@ -90,9 +90,9 @@
 <body>
 <div class="form">
   <div class="topbar">
-    <h1>Meldeformular (GitHub)</h1>
+    <h1>Meldeformular</h1>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button type="button" class="btn-primary" id="btnExport">JSON exportieren</button>
+      <button type="button" class="btn-primary" id="btnSubmit">Absenden</button>
       <button type="button" class="btn-secondary" id="btnReset">Formular zurücksetzen</button>
     </div>
   </div>
@@ -1183,39 +1183,174 @@
 
   // Export JSON
   function collectFormData(){
-    const massSel = massWrap.querySelector('.pillar.active')?.getAttribute('data-mass') || '';
-    const flags = {};
-    ['EL','RB','FS','EK'].forEach(k=>{
-      const p = flagsWrap.querySelector(`.pillar[data-flag="${k}"]`);
-      flags[k] = !!(p && p.classList.contains('active'));
-    });
 
-    const data = {
-      meta: { erzeugtAm: new Date().toISOString(), schema: 'mev-meldeformular-v1' },
-      alarmierung: {
-        meldungDatum: meldD.value,
-        meldungUhrzeit: meldT.value,
-        bemerkungen: (document.getElementById('alarm_bemerkungen').value||'').trim()
-      },
-      ereignis: {
-        ev_key: (evKeyEl.value||'').trim(),
-        var_key: (varKeyEl.value||'').trim(),
-        zugfahrzeug: { modus: zugMode, nummer: (document.getElementById('zugfahrzeugInput').value||'').trim() },
-        bemerkungen: (document.getElementById('ereignis_bemerkungen').value||'').trim()
-      },
-      entscheidungen: {
-        evu: evuSelect.value || (TREE?.default?.evu || 'MEV'),
-        fuehrend: (fuehrendView.textContent||'').trim(),
-        flags,
-        override: !!overrideToggle.checked,
-        rufbereitschaft: { name: rbName.textContent, mail: rbMail.textContent, tel: rbTel.textContent, zeitraum: rbZeit.textContent },
-        massnahme_status: massSel,
-        massnahmen_text: (document.getElementById('massnahmen_text').value||'').trim(),
-        bemerkungen: (document.getElementById('entscheid_bemerkungen').value||'').trim()
-      }
+  // --- Helfer ---
+  const val = (id) => (document.getElementById(id)?.value || '').trim();
+  const any = (...ids) => ids.some(id => val(id).length > 0);
+
+  const pickFromSelect = (selectEl) => {
+    if(!selectEl || !selectEl.value) return null;
+    const opt = selectEl.selectedOptions?.[0];
+    if(!opt) return null;
+    return {
+      mev_id: selectEl.value,
+      vorname: opt.dataset.vorname || '',
+      nachname: opt.dataset.nachname || '',
+      mail: opt.dataset.mail || '',
+      tel: opt.dataset.tel || ''
     };
-    return data;
-  }
+  };
+
+  const stationMini = (s) => s ? {
+    code: (s.code || '').toString().trim(),
+    label: (s.label || '').toString().trim(),
+    id: (s.id || '').toString().trim()
+  } : null;
+
+  // --- Melder ---
+  const melderIntern = pickFromSelect(document.getElementById('melderInternSelect'));
+  const melderExtern = any('melderExternFirma','melderExternVor','melderExternNach','melderExternMail','melderExternTel') ? {
+    unternehmen: val('melderExternFirma'),
+    vorname: val('melderExternVor'),
+    nachname: val('melderExternNach'),
+    mail: val('melderExternMail'),
+    tel: val('melderExternTel')
+  } : null;
+
+  const melder = melderIntern ? { typ:'Intern', ...melderIntern }
+              : melderExtern ? { typ:'Extern', ...melderExtern }
+              : null;
+
+  // --- Erfasser ---
+  const erfasserPick = pickFromSelect(document.getElementById('erfasserSelect'));
+  const erfasser = erfasserPick ? { typ:'Intern', ...erfasserPick } : null;
+
+  // --- Involvierte ---
+  const involvierte = [];
+  document.querySelectorAll('.inv-person').forEach(person => {
+    const roleKey = person.dataset.role || '';
+    const roleText = (typeof roleLabel === 'function') ? roleLabel(roleKey) : roleKey;
+
+    const sel = person.querySelector('.inv-intern-select');
+    const intern = pickFromSelect(sel);
+
+    const firma = (person.querySelector('.inv_firma')?.value || '').trim();
+    const vor   = (person.querySelector('.inv_vor_in')?.value || '').trim();
+    const nach  = (person.querySelector('.inv_nach_in')?.value || '').trim();
+    const mail  = (person.querySelector('.inv_mail_in')?.value || '').trim();
+    const tel   = (person.querySelector('.inv_tel_in')?.value || '').trim();
+    const externAny = !!(firma || vor || nach || mail || tel);
+
+    if(intern){
+      involvierte.push({
+        rolle: roleText,
+        typ: 'Intern',
+        ...intern
+      });
+    } else if(externAny){
+      involvierte.push({
+        rolle: roleText,
+        typ: 'Extern',
+        unternehmen: firma,
+        vorname: vor,
+        nachname: nach,
+        mail: mail,
+        tel: tel
+      });
+    }
+  });
+
+  // --- Ereignisart / Variante Text ---
+  const ev_key = (evKeyEl.value || '').trim();
+  const var_key = (varKeyEl.value || '').trim();
+
+  const evObj = (TREE?.ereignisse || []).find(e => e.key === ev_key) || null;
+  const varObj = evObj ? (evObj.varianten || []).find(v => v.key === var_key) : null;
+
+  // --- Ort ---
+  const ortMode = document.querySelector('#ortPillars .pillar.active')?.dataset.ort || '';
+  const ort = {
+    modus: ortMode,
+    bahnhof: stationMini(ortSelection?.bahnhof),
+    zugziel: stationMini(ortSelection?.zugziel),
+    start: stationMini(ortSelection?.start),
+    ziel: stationMini(ortSelection?.ziel),
+    anschluss: stationMini(ortSelection?.anschluss),
+    anschlussText: val('anschlussText')
+  };
+
+  // --- Flags ---
+  const flags = {};
+  ['EL','RB','FS','EK'].forEach(k=>{
+    const p = flagsWrap.querySelector(`.pillar[data-flag="${k}"]`);
+    flags[k] = !!(p && p.classList.contains('active'));
+  });
+
+  // --- Massnahme Status ---
+  const massSel = massWrap.querySelector('.pillar.active')?.getAttribute('data-mass') || '';
+
+  // --- Fotos (nur Metadaten, keine Bytes) ---
+  const fotos = Array.from(document.getElementById('photoInput')?.files || []).map(f => ({
+    name: f.name, size: f.size, type: f.type
+  }));
+
+  // --- Ergebnisobjekt ---
+  const data = {
+    meta: {
+      erzeugtAm: new Date().toISOString(),
+      schema: 'mev-ereignis-v1'
+    },
+
+    // geheimer Trigger für den Flow:
+    "EREIGNIS-MEV": true,
+
+    alarmierung: {
+      meldungDatum: meldD.value,
+      meldungUhrzeit: meldT.value,
+      melder,
+      erfasser: {
+        systemDatum: document.getElementById('erfasser_sys_datum')?.textContent || '',
+        systemUhrzeit: document.getElementById('erfasser_sys_uhrzeit')?.textContent || '',
+        auswahl: erfasser
+      },
+      involvierte,
+      bemerkungen: (document.getElementById('alarm_bemerkungen').value||'').trim()
+    },
+
+    ereignis: {
+      ev_key,
+      ev_text: evObj?.etype || '',
+      var_key,
+      var_text: varObj?.text || '',
+      zugfahrzeug: {
+        modus: zugMode,
+        nummer: (document.getElementById('zugfahrzeugInput').value||'').trim()
+      },
+      ort,
+      bemerkungen: (document.getElementById('ereignis_bemerkungen').value||'').trim()
+    },
+
+    entscheidungen: {
+      evu: evuSelect.value || (TREE?.default?.evu || 'MEV'),
+      verantwortliches_unternehmen: (fuehrendView.textContent||'').trim(),
+      flags,
+      override: !!overrideToggle.checked,
+      rufbereitschaft: {
+        name: rbName.textContent,
+        mail: rbMail.textContent,
+        tel: rbTel.textContent,
+        zeitraum: rbZeit.textContent
+      },
+      massnahme_status: massSel,
+      massnahmen_text: (document.getElementById('massnahmen_text').value||'').trim(),
+      bemerkungen: (document.getElementById('entscheid_bemerkungen').value||'').trim()
+    },
+
+    fotos
+  };
+
+  return data;
+}
 
   function downloadJson(obj){
     const blob = new Blob([JSON.stringify(obj, null, 2)], {type:'application/json'});
@@ -1229,13 +1364,13 @@
     setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
   }
 
-  document.getElementById('btnExport').addEventListener('click', ()=>{
-    if(!meldD.checkValidity() || !meldT.checkValidity()){
-      alert('Bitte Meldung Datum und Meldung Uhrzeit ausfüllen.');
-      return;
-    }
-    downloadJson(collectFormData());
-  });
+  document.getElementById('btnSubmit').addEventListener('click', ()=>{
+  if(!meldD.checkValidity() || !meldT.checkValidity()){
+    alert('Bitte Meldung Datum und Meldung Uhrzeit ausfüllen.');
+    return;
+  }
+  downloadJson(collectFormData());
+});
 
   document.getElementById('btnReset').addEventListener('click', ()=>{
     if(!confirm('Formular wirklich zurücksetzen?')) return;
