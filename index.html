@@ -1286,16 +1286,6 @@ function renderVorgehen(variant){
   renderVorgehen(v);
 }
 
-
-    const v = found.variant;
-    const flags = v.flags || {};
-    ['EL','RB','FS','EK'].forEach(k=> setFlag(k, !!flags[k]));
-    sourceView.textContent = `Entscheidungsbaum: ${found.event.etype} (${found.event.key}) → ${v.text} (${v.key})`;
-    const lead = computeFuehrend(v);
-    fuehrendView.textContent = lead.text;
-    fuehrendHint.textContent = lead.hint;
-  }
-
   function renderEvents(){
     evWrap.innerHTML = '';
     if(!events.length){
