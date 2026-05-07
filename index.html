@@ -116,6 +116,18 @@
     .badge{display:inline-block;padding:4px 10px;border-radius:999px;background:#eee;border:1px solid #ccc;font-weight:900;font-size:12px;margin-left:8px}
     #autoBadge{display:none;}
 
+
+
+    /* SharePoint / Bewertungsanzeige */
+    .flag-unused{display:none !important}
+    #flags_pillars.is-empty{display:none !important}
+    #bewertung_head.is-hidden,#vorgehen_section.is-hidden,#rb_head.is-hidden{display:none !important}
+    .save-status{font-size:12px;font-weight:900;padding:6px 10px;border-radius:999px;background:#eee;border:1px solid #ccc;align-self:center}
+    .save-status.ok{background:#dff5e1;border-color:#6bc28a;color:#134d24}
+    .save-status.err{background:#ffe8e8;border-color:#e53935;color:#b00020}
+    .save-status.run{background:#eef2ff;border-color:#4d73ff;color:#1e3d8f}
+    .save-status.warn{background:#fff8e1;border-color:#f5c000;color:#5f4200}
+
     /* Top bar */
     .topbar{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
     .topbar h1{font-size:18px;margin:0}
@@ -124,10 +136,12 @@
 <body>
 <div class="form">
   <div class="topbar">
-    <h1>Meldeformular  - TESTVERSION</h1>
+    <h1>Ereignismeldung</h1>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button type="button" class="btn-primary" id="btnSubmit">Absenden</button>
+      <button type="button" class="btn-primary" id="btnSubmit">In SharePoint speichern</button>
+      <button type="button" class="btn-secondary" id="btnExportJson">JSON exportieren</button>
       <button type="button" class="btn-secondary" id="btnReset">Formular zurücksetzen</button>
+      <span class="save-status" id="saveStatus">nicht gespeichert</span>
     </div>
   </div>
 
@@ -367,7 +381,7 @@
     </div>
   </div>
 
-  <div class="subhead">Bewertung <span class="badge" id="autoBadge">Auto</span></div>
+  <div class="subhead is-hidden" id="bewertung_head">Bewertung <span class="badge" id="autoBadge">Auto</span></div>
   <div class="row-2 is-hidden">
     <div class="field">
       <label style="font-weight:900;display:flex;gap:10px;align-items:center;">
@@ -388,8 +402,8 @@
     <div class="pillar locked" data-flag="EK">Erweiterter Kreis (EK)</div>
   </div>
 
-  <div class="subhead">Rufbereitschaft</div>
-  <div class="card is-inactive" id="rb_card">
+  <div class="subhead is-hidden" id="rb_head">Rufbereitschaft</div>
+  <div class="card is-inactive is-hidden" id="rb_card">
     <div style="font-weight:900;margin-bottom:8px;">Aktuell (Notfallmanagement)</div>
     <div class="pillars" style="grid-template-columns:repeat(4,1fr);margin-top:0;">
       <div class="pillar small locked" style="cursor:default;"><div class="p-label">Name</div><div class="p-value" id="rb_name">—</div></div>
@@ -400,6 +414,7 @@
     <div class="hint" id="rb_hint">Wird aus assets/rufbereitschaft_plan.json ermittelt.</div>
   </div>
 
+<div id="vorgehen_section" class="is-hidden">
 <div class="subhead">Weiteres Vorgehen (Einsatzleitung)</div>
 
   <div class="field">
@@ -420,6 +435,7 @@
     <div style="font-weight:900;margin-bottom:6px;">Bemerkungen zur Entscheidung</div>
     <textarea id="entscheid_bemerkungen" rows="3" placeholder="Bemerkungen (optional)"></textarea>
   </div>
+</div>
 
   <!-- ===================== -->
   <!-- 4) FOTOS (optional)   -->
@@ -440,7 +456,7 @@
    - Alarmierung (Mitarbeiter/Intern-Extern/Involvierte)
    - Ereignisdaten (Entscheidungsbaum + SUFU Stationen + Karte)
    - Entscheidungen (Auto Flags + Führend + Rufbereitschaft)
-   - Export JSON
+   - SharePoint Upsert + JSON-Fallback
 ========================================================= */
 
 (async function(){
@@ -450,11 +466,49 @@
   const URL_STATIONS = 'assets/stationen_aus_svg.json';
   const URL_MAP = 'assets/map.svg';
 
+  // Power-Automate-HTTP-Trigger: URL nach dem Speichern des Flows hier einfügen.
+  // Beispiel: const SAVE_FLOW_URL = 'https://.../triggers/manual/paths/invoke?...';
+  const SAVE_FLOW_URL = 'https://defaulte3d2e8defe3548eaa78972c4a2acf9.8e.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/7659dd88f4f440319ce452a19d40a2bc/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=JbYc2mpIVfIuF5mQmKcZalNY8N2tDSyf2xqbgcvKeCM';
+  const FLOW_ENABLED = SAVE_FLOW_URL && !SAVE_FLOW_URL.includes('HIER_DEINE_FLOW_HTTP_URL');
+
   const pad = (n)=> String(n).padStart(2,'0');
   const now = new Date();
   const todayISO = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
   const timeHHMM = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
   const fmtDate = (d)=> d.toLocaleDateString('de-CH');
+
+  const saveStatus = document.getElementById('saveStatus');
+  const urlParams = new URLSearchParams(window.location.search);
+
+  function setSaveStatus(text, kind=''){
+    if(!saveStatus) return;
+    saveStatus.textContent = text;
+    saveStatus.className = `save-status ${kind}`.trim();
+  }
+
+  function getOrCreateEreignisId(){
+    const fromUrl = urlParams.get('ereignisId');
+    if(fromUrl) return fromUrl;
+    const existing = sessionStorage.getItem('mev_ereignis_id');
+    if(existing) return existing;
+    const d = new Date();
+    const id = `EVT-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+    sessionStorage.setItem('mev_ereignis_id', id);
+    return id;
+  }
+
+  function setFieldValue(id, value){
+    const el = document.getElementById(id);
+    if(!el || value == null || value === '') return;
+    el.value = value;
+    el.dispatchEvent(new Event('input', {bubbles:true}));
+    el.dispatchEvent(new Event('change', {bubbles:true}));
+  }
+
+  function clickPillar(selector){
+    const el = document.querySelector(selector);
+    if(el) el.click();
+  }
 
   function setCardActive(card, active){
     card.classList.toggle('is-active', !!active);
@@ -482,6 +536,7 @@
   // Erfasser Systemzeit
   document.getElementById('erfasser_sys_datum').textContent = fmtDate(now);
   document.getElementById('erfasser_sys_uhrzeit').textContent = timeHHMM;
+  setSaveStatus(FLOW_ENABLED ? 'bereit für SharePoint' : 'Flow-URL fehlt', FLOW_ENABLED ? 'warn' : 'err');
 
   // Load Mitarbeitende
   let staffFlat = [];
@@ -582,6 +637,19 @@
     const val = p.mev_id || `${p.nachname} ${p.vorname} (${p.dept})`;
     selectEl.value = val;
     selectEl.dispatchEvent(new Event('change', {bubbles:true}));
+  }
+
+
+  function findStaffFromPrefill(name, mail){
+    const mailLc = (mail || '').trim().toLowerCase();
+    if(mailLc && staffByMail.has(mailLc)) return staffByMail.get(mailLc);
+    const n = (name || '').trim().toLowerCase();
+    if(!n) return null;
+    return staffFlat.find(p=>{
+      const full1 = `${p.vorname} ${p.nachname}`.trim().toLowerCase();
+      const full2 = `${p.nachname} ${p.vorname}`.trim().toLowerCase();
+      return full1 === n || full2 === n || full1.includes(n) || full2.includes(n);
+    }) || null;
   }
 
   // Melder intern/extern
@@ -1641,11 +1709,13 @@ bindTypeahead(taAnschluss, taAnschlussList, (st)=>{
 
 function renderVorgehen(variant){
   if(!vorgehenWrap) return;
+  const vorgSection = document.getElementById('vorgehen_section');
 
   if(!variant){
     massnahmenEmpfohlen = {};
     vorgehenWrap.innerHTML = '<div class="hint">—</div>';
     if(vorgehenHint) vorgehenHint.textContent = 'Wähle Ereignisart und Variante.';
+    vorgSection?.classList.add('is-hidden');
     return;
   }
 
@@ -1658,8 +1728,10 @@ function renderVorgehen(variant){
   if(keys.length === 0){
     vorgehenWrap.innerHTML = '<div class="hint">Keine zusätzlichen Schritte definiert.</div>';
     if(vorgehenHint) vorgehenHint.textContent = `EVU: ${evu.id}`;
+    vorgSection?.classList.add('is-hidden');
     return;
   }
+  vorgSection?.classList.remove('is-hidden');
 
   vorgehenWrap.innerHTML = keys.map(k => {
     const meta = legend[k] || {label:k, beschreibung:''};
@@ -1687,6 +1759,34 @@ function renderVorgehen(variant){
   function setFlag(flag, on){
     const p = flagsWrap.querySelector(`.pillar[data-flag="${flag}"]`);
     if(p) p.classList.toggle('active', !!on);
+  }
+
+  function renderFlags(flags){
+    const head = document.getElementById('bewertung_head');
+    let any = false;
+    ['EL','RB','FS','EK'].forEach(k=>{
+      const p = flagsWrap.querySelector(`.pillar[data-flag="${k}"]`);
+      if(!p) return;
+      const active = !!flags?.[k];
+      p.classList.toggle('active', active);
+      p.classList.toggle('flag-unused', !active);
+      if(active) any = true;
+    });
+    flagsWrap.classList.toggle('is-empty', !any);
+    head?.classList.toggle('is-hidden', !any);
+    updateConditionalDecisionBlocks(flags || {});
+  }
+
+  function updateConditionalDecisionBlocks(flags){
+    const rbHead = document.getElementById('rb_head');
+    const rbNeeded = !!flags.RB;
+    rbHead?.classList.toggle('is-hidden', !rbNeeded);
+    rbCard?.classList.toggle('is-hidden', !rbNeeded);
+  }
+
+  function renderInitialHiddenEvaluation(){
+    renderFlags({EL:false,RB:false,FS:false,EK:false});
+    document.getElementById('vorgehen_section')?.classList.add('is-hidden');
   }
   function setActivePillar(container, attr, value){
     [...container.querySelectorAll('.pillar')].forEach(p=> p.classList.toggle('active', p.getAttribute(attr) === value));
@@ -1738,7 +1838,7 @@ function renderVorgehen(variant){
     renderVorgehen(null);
 
     sourceView.textContent = 'Keine gültige Kombination Ereignisart/Variante.';
-    ['EL','RB','FS','EK'].forEach(k=> setFlag(k,false));
+    renderFlags({EL:false,RB:false,FS:false,EK:false});
     fuehrendView.textContent = '—';
     fuehrendHint.textContent = 'Wähle Ereignisart und Variante, dann wird Führend gesetzt.';
     return;
@@ -1746,7 +1846,7 @@ function renderVorgehen(variant){
 
   const v = found.variant;
   const flags = v.flags || {};
-  ['EL','RB','FS','EK'].forEach(k=> setFlag(k, !!flags[k]));
+  renderFlags(flags);
 
   sourceView.textContent = `Entscheidungsbaum: ${found.event.etype} (${found.event.key}) → ${v.text} (${v.key})`;
 
@@ -1891,8 +1991,72 @@ function renderVorgehen(variant){
     mapBox.innerHTML = '<div style="padding:12px;font-weight:900;color:#b00020;">Fehler: assets/map.svg konnte nicht geladen werden.</div>';
   }
 
+
+
+  function prefillFromDienstuebergabe(){
+    if(urlParams.get('quelle') !== 'dienstuebergabe') return;
+
+    const vorgangId = urlParams.get('vorgangId') || '';
+    const mitarbeiter = urlParams.get('mitarbeiter') || '';
+    const mitarbeiterMail = urlParams.get('mitarbeiterMail') || '';
+    const dienst = urlParams.get('dienst') || '';
+    const datum = urlParams.get('datum') || '';
+    const zug = urlParams.get('zug') || '';
+    const ort = urlParams.get('ort') || '';
+    const bemerkung = urlParams.get('bemerkung') || '';
+    const evu = urlParams.get('evu') || '';
+
+    if(datum) setFieldValue('meldung_datum', datum);
+    if(zug){
+      clickPillar('#zugfahrzeugPillars .pillar[data-mode="zug"]');
+      setFieldValue('zugfahrzeugInput', zug);
+    }
+    if(evu && evuSelect){
+      evuSelect.value = evu;
+      evuSelect.dispatchEvent(new Event('change', {bubbles:true}));
+    }
+
+    if(mitarbeiter || mitarbeiterMail){
+      const rolePill = document.querySelector('#invRoles .pillar[data-role="lokfuehrer"]');
+      if(rolePill && !rolePill.classList.contains('active')) rolePill.click();
+      const p = findStaffFromPrefill(mitarbeiter, mitarbeiterMail);
+      addInvPerson('lokfuehrer');
+      const list = document.getElementById('invList_lokfuehrer');
+      const personEl = list?.lastElementChild;
+      if(personEl && p){
+        const sel = personEl.querySelector('.inv-intern-select');
+        if(sel) setSelectToStaff(sel, p);
+      } else if(personEl){
+        const parts = mitarbeiter.trim().split(/\s+/).filter(Boolean);
+        const vor = personEl.querySelector('.inv_vor_in');
+        const nach = personEl.querySelector('.inv_nach_in');
+        const mail = personEl.querySelector('.inv_mail_in');
+        if(parts.length > 1){
+          if(vor) vor.value = parts.slice(0,-1).join(' ');
+          if(nach) nach.value = parts.slice(-1).join(' ');
+        } else if(nach){
+          nach.value = mitarbeiter;
+        }
+        if(mail && mitarbeiterMail) mail.value = mitarbeiterMail;
+        (vor || nach || mail)?.dispatchEvent(new Event('input', {bubbles:true}));
+      }
+    }
+
+    const lines = [
+      vorgangId ? `Vorgang Dienstübergabe: ${vorgangId}` : '',
+      dienst ? `Dienst: ${dienst}` : '',
+      ort ? `Ort/Relation aus Dienstübergabe: ${ort}` : '',
+      bemerkung ? `Kurzbeschreibung: ${bemerkung}` : ''
+    ].filter(Boolean);
+    if(lines.length) setFieldValue('ereignis_bemerkungen', lines.join('\n'));
+
+    setSaveStatus('aus Dienstübergabe vorbefüllt', 'warn');
+  }
+
   // Init Entscheidungen
   setManualMode(false);
+  renderInitialHiddenEvaluation();
+  prefillFromDienstuebergabe();
   applyAutoDecisions();
 
   // Fotos preview
@@ -2030,8 +2194,13 @@ function renderVorgehen(variant){
   // --- Ergebnisobjekt ---
   const data = {
     meta: {
+      ereignisId: getOrCreateEreignisId(),
+      title: `${evObj?.etype || 'Ereignis'}${varObj?.text ? ' – ' + varObj.text : ''}`.trim(),
       erzeugtAm: new Date().toISOString(),
-      schema: 'mev-ereignis-v1'
+      letzteAenderung: new Date().toISOString(),
+      schema: 'mev-ereignis-v1',
+      quelle: urlParams.get('quelle') || 'ereignis_app',
+      vorgangIdDienstuebergabe: urlParams.get('vorgangId') || ''
     },
 
     // geheimer Trigger für den Flow:
@@ -2040,6 +2209,8 @@ function renderVorgehen(variant){
     alarmierung: {
       meldungDatum: meldD.value,
       meldungUhrzeit: meldT.value,
+      meldung_datum: meldD.value,
+      meldung_uhrzeit: meldT.value,
       melder,
       erfasser: {
         systemDatum: document.getElementById('erfasser_sys_datum')?.textContent || '',
@@ -2053,8 +2224,10 @@ function renderVorgehen(variant){
     ereignis: {
       ev_key,
       ev_text: evObj?.etype || '',
+      ereignisart: evObj?.etype || '',
       var_key,
       var_text: varObj?.text || '',
+      variante: varObj?.text || '',
       zugfahrzeug: {
         modus: zugMode,
         nummer: (document.getElementById('zugfahrzeugInput').value||'').trim()
@@ -2085,6 +2258,35 @@ function renderVorgehen(variant){
   return data;
 }
 
+
+
+  async function saveToSharePoint(payload){
+    if(!FLOW_ENABLED){
+      throw new Error('SAVE_FLOW_URL ist noch nicht gesetzt. Bitte Flow-HTTP-URL in index_ereignisse.html einfügen.');
+    }
+    const ereignisId = payload?.meta?.ereignisId || getOrCreateEreignisId();
+    payload.meta = payload.meta || {};
+    payload.meta.ereignisId = ereignisId;
+    payload.meta.letzteAenderung = new Date().toISOString();
+
+    const res = await fetch(SAVE_FLOW_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        action: 'upsert',
+        ereignisId,
+        payload
+      })
+    });
+    const text = await res.text();
+    let json = null;
+    try{ json = text ? JSON.parse(text) : null; }catch(_){ json = {raw:text}; }
+    if(!res.ok){
+      throw new Error(`SharePoint-Speicherung fehlgeschlagen: HTTP ${res.status} ${text}`);
+    }
+    return json || {ok:true};
+  }
+
   function downloadJson(obj){
     const blob = new Blob([JSON.stringify(obj, null, 2)], {type:'application/json'});
     const a = document.createElement('a');
@@ -2097,13 +2299,29 @@ function renderVorgehen(variant){
     setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
   }
 
-  document.getElementById('btnSubmit').addEventListener('click', ()=>{
+  document.getElementById('btnSubmit').addEventListener('click', async ()=>{
   if(!meldD.checkValidity() || !meldT.checkValidity()){
     alert('Bitte Meldung Datum und Meldung Uhrzeit ausfüllen.');
     return;
   }
-  downloadJson(collectFormData());
+  const data = collectFormData();
+  try{
+    setSaveStatus('speichert …', 'run');
+    const result = await saveToSharePoint(data);
+    setSaveStatus(`gespeichert: ${data.meta.ereignisId}`, 'ok');
+    alert(`Ereignis gespeichert: ${data.meta.ereignisId}`);
+    console.log('SharePoint result', result);
+  }catch(err){
+    console.error(err);
+    setSaveStatus('Fehler – JSON exportiert', 'err');
+    alert('Speichern in SharePoint fehlgeschlagen. JSON wird lokal exportiert.\n\n' + (err?.message || err));
+    downloadJson(data);
+  }
 });
+
+  document.getElementById('btnExportJson')?.addEventListener('click', ()=>{
+    downloadJson(collectFormData());
+  });
 
   document.getElementById('btnReset').addEventListener('click', ()=>{
     if(!confirm('Formular wirklich zurücksetzen?')) return;
